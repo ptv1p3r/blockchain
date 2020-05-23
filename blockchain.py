@@ -18,6 +18,8 @@ class Block:
 
 
 class Blockchain:
+    difficulty = 2  # dificuldade PoW
+
     def __init__(self):
         self.chain = []
         self.generate_genesis_block()
@@ -33,3 +35,28 @@ class Blockchain:
     def last_block(self):
         # retorna o ultimo bloco
         return self.chain[-1]
+
+    def proof_of_work(self, block):
+        block.nonce = 0
+        computed_hash = block.compute_hash()
+        while not computed_hash.startswith('0' * Blockchain.difficulty):
+            block.nonce += 1
+            computed_hash = block.compute_hash()
+        return computed_hash
+
+    def add_block(self, block, proof):
+        previous_hash = self.last_block.hash
+
+        if previous_hash != block.previous_hash:
+            return False
+
+        if not Blockchain.is_valid_proof(block, proof):
+            return False
+
+        block.hash = proof
+        self.chain.append(block)
+        return True
+
+    def is_valid_proof(self, block, block_hash):
+        return (block_hash.startswith('0' * Blockchain.difficulty) and
+                block_hash == block.compute_hash())

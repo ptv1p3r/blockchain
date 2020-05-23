@@ -4,11 +4,12 @@ import time
 
 
 class Block:
-    def __init__(self, index, transactions, timestamp, previous_hash):
+    def __init__(self, index, transactions, timestamp, previous_hash, nonce=0):
         self.index = index                      # Id do bloco
         self.transactions = transactions        # lista de transacoes (data)
         self.timestamp = timestamp              # timestamp de geracao do bloco
         self.previous_hash = previous_hash      # hash do ultimo bloco a ser incluido no novo bloco
+        self.nonce = nonce
 
     def compute_hash(self):
         # retorna a hash do bloco convertendo primeiro para uma string
@@ -21,6 +22,7 @@ class Blockchain:
     difficulty = 2  # dificuldade PoW
 
     def __init__(self):
+        self.unconfirmed_transactions = []  # dados nao confirmados
         self.chain = []
         self.generate_genesis_block()
 
@@ -50,7 +52,7 @@ class Blockchain:
         if previous_hash != block.previous_hash:
             return False
 
-        if not Blockchain.is_valid_proof(block, proof):
+        if not self.is_valid_proof(block, proof):
             return False
 
         block.hash = proof
@@ -58,5 +60,24 @@ class Blockchain:
         return True
 
     def is_valid_proof(self, block, block_hash):
-        return (block_hash.startswith('0' * Blockchain.difficulty) and
-                block_hash == block.compute_hash())
+        return block_hash.startswith('0' * Blockchain.difficulty) and block_hash == block.compute_hash()
+
+    def add_new_transaction(self, transaction):
+        self.unconfirmed_transactions.append(transaction)
+
+    def mine(self):
+        if not self.unconfirmed_transactions:
+            return False
+
+        last_block = self.last_block
+
+        new_block = Block(index=last_block.index + 1,
+                          transactions=self.unconfirmed_transactions,
+                          timestamp=time.time(),
+                          previous_hash=last_block.hash)
+
+        proof = self.proof_of_work(new_block)
+        self.add_block(new_block, proof)
+        self.unconfirmed_transactions = []
+
+        return new_block.index

@@ -40,18 +40,24 @@ class Blockchain:
 
     def proof_of_work(self, block):
         block.nonce = 0
+
         computed_hash = block.compute_hash()
+
+        # altera o valor nonce de forma a que o valor final da hash seja o espera com o respectivo grau de dificuldade
         while not computed_hash.startswith('0' * Blockchain.difficulty):
             block.nonce += 1
             computed_hash = block.compute_hash()
         return computed_hash
 
     def add_block(self, block, proof):
+        # adiciona o novo bloco à chain apos validação
         previous_hash = self.last_block.hash
 
+        # hash do bloco e hash do ultimo bloco na chain sao diferentes
         if previous_hash != block.previous_hash:
             return False
 
+        # valida a formatacao de bloco e hash
         if not self.is_valid_proof(block, proof):
             return False
 
@@ -60,9 +66,11 @@ class Blockchain:
         return True
 
     def is_valid_proof(self, block, block_hash):
+        # valida o inicio da block hash e a respectiva hash
         return block_hash.startswith('0' * Blockchain.difficulty) and block_hash == block.compute_hash()
 
     def add_new_transaction(self, transaction):
+        # adiciona nova transação (data) à lista de não confirmadas
         self.unconfirmed_transactions.append(transaction)
 
     def mine(self):

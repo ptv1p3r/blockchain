@@ -54,7 +54,4 @@ def get_pending_tx():
     return json.dumps(blockchain.unconfirmed_transactions)
 
 
-
-
-
 app.run(debug=True, port=8000)

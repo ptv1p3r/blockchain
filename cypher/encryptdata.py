@@ -2,8 +2,6 @@ from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES, PKCS1_OAEP
 import json
-import sys
-import unicodedata as ud
 
 # Adiciona o 1° argumento ao conteudo do content do jsonModel
 jsonModel = {

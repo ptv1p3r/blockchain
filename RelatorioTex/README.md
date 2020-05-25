@@ -1,4 +1,4 @@
 
 
 # Relátorio criado em LaTex:
-* *NOTA* Em constantes mutações todos os dias!
+* *NOTE* Growing every day!

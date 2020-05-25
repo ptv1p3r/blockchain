@@ -82,8 +82,7 @@ class Blockchain:
             # remove o campo hash e forca a criação de uma nova hash
             delattr(block, "hash")
 
-            if not self.is_valid_proof(block, block_hash) or \
-                    previous_hash != block.previous_hash:
+            if not self.is_valid_proof(block, block_hash) or previous_hash != block.previous_hash:
                 result = False
                 break
 

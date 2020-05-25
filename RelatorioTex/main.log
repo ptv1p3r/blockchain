@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.4.17)  25 MAY 2020 17:33
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.4.17)  25 MAY 2020 17:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2175,11 +2175,11 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 275.
  ) 
 Here is how much of TeX's memory you used:
- 34335 strings out of 492982
- 614546 string characters out of 6134896
- 965828 words of memory out of 5000000
+ 34340 strings out of 492982
+ 614588 string characters out of 6134896
+ 965814 words of memory out of 5000000
  37091 multiletter control sequences out of 15000+600000
- 96545 words of font info for 145 fonts, out of 8000000 for 9000
+ 97755 words of font info for 148 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  65i,19n,106p,8815b,523s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/tex-gyre/q-ec.enc}{/usr/share/texlive/texmf
@@ -2194,10 +2194,10 @@ helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhv
 r8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/s
 hare/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/te
 xmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (13 pages, 260135 bytes).
+Output written on main.pdf (13 pages, 260678 bytes).
 PDF statistics:
  586 PDF objects out of 1000 (max. 8388607)
  454 compressed objects within 5 object streams
  36 named destinations out of 1000 (max. 500000)
- 45095 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 47143 words of extra memory for PDF output out of 51595 (max. 10000000)
 

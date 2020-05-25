@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.4.17)  25 MAY 2020 17:51
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.4.17)  25 MAY 2020 18:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1848,7 +1848,9 @@ Package glossaries Info: Writing glossary file main.glo on input line 103.
 Package glossaries Info: Writing glossary file main.acn on input line 103.
  (./main.aux (./acronimos.aux)
 (./chapters/introduction/introduction.aux)
-(./chapters/systemdevelopment/systemdevelopment.aux))
+(./chapters/systemdevelopment/systemdevelopment.aux)
+(./chapters/testingimplementation/testingimplementation.aux)
+(./chapters/finalconsiderations/finalconsiderations.aux))
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 105.
@@ -1984,7 +1986,7 @@ Package marginnote Info: \pdfoutput not 0 or unimportant and
 (marginnote)             \pdflastxpos or \lastxpos available.
 (marginnote)             Extended position detection mode activated.
  (./main.glsdefs)
-<pic/logotipo_ISMAT.pdf, id=19, 229.85875pt x 74.2775pt>
+<pic/logotipo_ISMAT.pdf, id=27, 229.85875pt x 74.2775pt>
 File: pic/logotipo_ISMAT.pdf Graphic file (type pdf)
 <use pic/logotipo_ISMAT.pdf>
 Package pdftex.def Info: pic/logotipo_ISMAT.pdf  used on input line 112.
@@ -2125,7 +2127,7 @@ Class scrreprt Warning: \float@addtolists detected!
 (scrreprt)              a package that still implements the
 (scrreprt)              deprecated \float@addtolist interface .
 
-<images/figure_example.pdf, id=87, 568.1225pt x 279.0425pt>
+<images/figure_example.pdf, id=97, 568.1225pt x 279.0425pt>
 File: images/figure_example.pdf Graphic file (type pdf)
 <use images/figure_example.pdf>
 Package pdftex.def Info: images/figure_example.pdf  used on input line 13.
@@ -2169,29 +2171,51 @@ chapter 2.
 
 
 
-]) (./main.bbl [4
+]
+\openout2 = `chapters/testingimplementation/testingimplementation.aux'.
+
+ (./chapters/testingimplementation/testingimplementation.tex [4
+
+
+
+
+]
+chapter 3.
+) [5]
+\openout2 = `chapters/finalconsiderations/finalconsiderations.aux'.
+
+ (./chapters/finalconsiderations/finalconsiderations.tex [6
+
+
+
+
+]
+chapter 4.
+) [7]) (./main.bbl [8
 
 
 
 ]
 chapter without number
-) AED: lastpage setting LastPage [5]
+) AED: lastpage setting LastPage [9]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 275.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 275.
  (./main.aux (./acronimos.aux)
 (./chapters/introduction/introduction.aux)
-(./chapters/systemdevelopment/systemdevelopment.aux))
+(./chapters/systemdevelopment/systemdevelopment.aux)
+(./chapters/testingimplementation/testingimplementation.aux)
+(./chapters/finalconsiderations/finalconsiderations.aux))
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 275.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 275.
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: FFA1B2325044AB5FF401DF8B4BACDD37;160.
+(rerunfilecheck)             Checksum: F7E26338486734E0519923AD5F7CC7CA;285.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 275.
  ) 
 Here is how much of TeX's memory you used:
- 34358 strings out of 492982
- 615205 string characters out of 6134896
- 966879 words of memory out of 5000000
- 37097 multiletter control sequences out of 15000+600000
+ 34394 strings out of 492982
+ 616580 string characters out of 6134896
+ 969003 words of memory out of 5000000
+ 37109 multiletter control sequences out of 15000+600000
  97755 words of font info for 148 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  65i,19n,106p,8815b,523s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -2207,10 +2231,10 @@ helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhv
 r8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/s
 hare/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/te
 xmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (15 pages, 263182 bytes).
+Output written on main.pdf (19 pages, 266350 bytes).
 PDF statistics:
- 603 PDF objects out of 1000 (max. 8388607)
- 469 compressed objects within 5 object streams
- 40 named destinations out of 1000 (max. 500000)
- 47151 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 633 PDF objects out of 1000 (max. 8388607)
+ 495 compressed objects within 5 object streams
+ 48 named destinations out of 1000 (max. 500000)
+ 47167 words of extra memory for PDF output out of 51595 (max. 10000000)
 

@@ -3,7 +3,7 @@ import requests
 import blockchain
 import time
 import json
-# ok
+
 app = Flask(__name__)
 
 blockchain = blockchain.Blockchain()

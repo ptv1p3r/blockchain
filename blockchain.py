@@ -89,3 +89,5 @@ class Blockchain:
         self.unconfirmed_transactions = []
 
         return new_block.index
+
+

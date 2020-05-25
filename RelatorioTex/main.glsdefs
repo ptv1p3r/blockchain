@@ -1,0 +1,30 @@
+\ifglsentryexists{nasa}{}%
+{%
+\gls@defglossaryentry{nasa}%
+{%
+name={NASA},%
+sort={NASA},%
+type={acronym},%
+first={National Aeronautics and Space Administration\glsspace (NASA)},%
+firstplural={National Aeronautics and Space Administrations\glsspace (NASAs)},%
+text={NASA},%
+plural={NASAs},%
+description={National Aeronautics and Space Administration},%
+descriptionplural={National Aeronautics and Space Administration\acrpluralsuffix },%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={National Aeronautics and Space Administration},%
+longplural={National Aeronautics and Space Administrations},%
+short={NASA},%
+shortplural={NASAs},%
+counter={page},%
+parent={},%
+%
+}%
+}%

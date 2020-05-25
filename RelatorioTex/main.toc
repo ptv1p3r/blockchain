@@ -1,0 +1,12 @@
+\babel@toc {english}{}
+\babel@toc {portuguese}{}
+\babel@toc {portuguese}{}
+\babel@toc {portuguese}{}
+\babel@toc {portuguese}{}
+\babel@toc {portuguese}{}
+\babel@toc {portuguese}{}
+\babel@toc {english}{}
+\babel@toc {portuguese}{}
+\contentsline {chapter}{\numberline {1}Introdu\IeC {\c c}\IeC {\~a}o}{1}{chapter.1}% 
+\babel@toc {portuguese}{}
+\contentsline {chapter}{\nonumberline Bibliografia}{3}{chapter*.15}% 

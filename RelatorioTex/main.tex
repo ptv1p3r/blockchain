@@ -1,0 +1,274 @@
+\documentclass[
+ paper=A4,               % paper size --> A4 is default in Germany
+    twoside=true,           % onesite or twoside printing
+    openright,              % doublepage cleaning ends up right side
+    parskip=full,           % spacing value / method for paragraphs
+    chapterprefix=true,     % prefix for chapter marks
+    12pt,                   % font size
+    headings=normal,        % size of headings
+    bibliography=totoc,     % include bib in toc
+    listof=totoc,           % include listof entries in toc
+    titlepage=on,           % own page for each title page
+    captions=tableabove,    % display table captions above the float env
+    draft=false,            % value for draft version
+]{scrreprt}
+
+%\usepackage[utf8x]{inputenc}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{newstyle}
+\usepackage{tabularx}
+\usepackage{amsmath,amsfonts,amssymb,amsthm,url}
+\def\UrlBreaks{\do\/\do-}
+\usepackage[portuguese,english]{babel}
+\usepackage{times}
+\usepackage{setspace}
+\usepackage[sort&compress,numbers]{natbib}
+\usepackage[vlined,ruled,commentsnumbered,linesnumbered]{algorithm2e} 
+\usepackage{algorithmic}  
+\usepackage{graphicx,multirow}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{mathptmx} % use Times in math mode
+%\usepackage{moreverb}
+\usepackage{lscape,rotating}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{nameref}
+\usepackage{listings}
+\usepackage{subfig}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{makeidx}
+\usepackage{epsfig}
+\usepackage{xspace}
+%\usepackage{subfigure}
+%\usepackage[show]{chato-notes}
+%\usepackage{listings}
+\usepackage{color}
+\usepackage{marginnote}
+\usepackage{flushend}
+\usepackage{breakurl}
+\usepackage{lipsum}  
+\usepackage{longtable}
+\usepackage[acronym]{glossaries}
+
+%\makeindex
+
+
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}[]
+
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,fill,inner sep=1pt] (char) {\textcolor{white}{#1}};}}
+
+\fancyhf{} %
+\lhead{\nouppercase {\leftmark}} %
+\rhead{\nouppercase {\bf \thepage}}
+\renewcommand{\headrulewidth}{0.1pt}
+
+% Comando para inserir pagina em branco (inserida na numeracao, mas sem
+% numero impresso) para quando e' preciso obrigar um capitulo a comecar
+% do lado direito (pagina impar)
+\newcommand{\LIMPA}{
+\newpage
+\mbox{}
+\thispagestyle{empty}
+}
+
+
+\newcommand{\Cabecalho}{
+\vspace{-0.5cm}\normalfont\normalfont
+\vfill
+\textsc{\normalsize\uppercase{Instituto Superior Manuel Teixeira Gomes}}\\
+\vspace{1.5cm}
+\includegraphics[scale=.9]{pic/logotipo_ISMAT.pdf}\\
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 						INFORMACOES RELATIVAS AO PROJECTO/ALUNO										%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{student_project_definitions}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\title{\TITULO}
+\author{\Autor}
+%\date{\today}
+
+\makeglossaries
+
+\begin{document}
+\selectlanguage{portuguese}
+\pagestyle{empty}
+
+%%% Primeira capa
+\begin{center}
+
+\Cabecalho
+
+\vspace{2.0cm}
+\vfill
+\IdiomaTese
+\Large{\textbf{\TITULO}}\\
+\vspace{1cm}
+\vfill
+
+\large{\textbf{\CADEIRA}}\\
+\vspace{1.0cm}
+\vfill
+\Large{\textbf{\Autor}}\\
+\vspace{1,8 cm}
+\vfill
+\large{Trabalho orientado por:}\\
+\large{Prof. \Orientador} \\
+% DESCOMENTAR a linha relevante (se alguma), removendo o % no inicio
+e pelo Prof. \CoOrientador \\
+\vspace{1 cm}
+\vfill
+
+\vspace{0.5cm}
+\vfill
+\vspace{-1cm}
+\Ano
+\end{center}
+
+
+%%% Segunda capa
+\begin{center}
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
+\cleardoublepage
+
+\Cabecalho
+
+\vspace{2.0cm}
+\vfill
+\IdiomaTese
+\Large{\textbf{\TITULO}}\\
+\vspace{1cm}
+\vfill
+
+\large{\textbf{\CADEIRA}}\\
+\vspace{1.0cm}
+\vfill
+\Large{\textbf{\Autor}}\\
+\vspace{1,8 cm}
+\vfill
+\large{Trabalho orientado por:}\\
+\large{Prof. \Orientador} \\
+% DESCOMENTAR a linha relevante (se alguma), removendo o % no inicio
+e pelo Prof. \CoOrientador \\
+\vspace{1 cm}
+\vfill
+
+\vspace{0.5cm}
+\vfill
+\vspace{-1cm}
+\Ano
+\end{center}
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
+\cleardoublepage
+
+
+% Fim da capa
+% ----------------------------------------------------------------------
+
+\pagenumbering{roman}			% roman page numbing (invisible for empty page style)
+\setcounter{page}{1}			% set page counter
+\pagestyle{empty}
+
+\selectlanguage{portuguese}
+
+\pagestyle{plain}				% display just page numbers
+\include{chapters/copyright/copyright}
+%\LIMPA
+
+\pagestyle{plain}				% display just page numbers
+\include{chapters/acks/agradecimentos}
+\LIMPA
+
+\pagestyle{plain}				% display just page numbers
+\include{chapters/abstract/resumo_pt}
+\LIMPA
+
+\pagestyle{plain}				% display just page numbers
+\include{chapters/abstract/resumo_en}
+\LIMPA
+
+%Lista de capitulos
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}		% define depth of toc
+\tableofcontents				% display table of contents
+%\addcontentsline {toc} {chapter} {Content}
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
+%\cleardoublepage
+
+%%Lista de figuras
+\listoffigures
+%\addcontentsline {toc} {chapter} {List of Figures}
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
+%\cleardoublepage
+
+%Lista de tabelas
+\listoftables
+%\addcontentsline {toc} {chapter} {List of Tables}
+\newpage
+\thispagestyle{empty} 
+\mbox{}
+\newpage
+\cleardoublepage
+
+
+%Lista de acronimos
+%\LIMPA
+\renewcommand{\glossaryname}{Acrónimos}
+\include{acronimos}
+\clearpage
+\printglossary[type=\acronymtype]
+ 
+
+% --------------------------
+% Body matter
+% --------------------------
+
+% ----------------------------------------------------------------------
+% Inicio conteudo
+\pagestyle{fancy}
+\cleardoublepage
+
+\selectlanguage{portuguese}
+\pagenumbering{arabic}			% arabic page numbering
+\setcounter{page}{1}			% set page counter
+\pagestyle{maincontentstyle} 		% fancy header and footer
+
+%%% ADICIONAR CAPITULOS
+\input{structure}
+
+% Fim do conteudo
+% ----------------------------------------------------------------------
+
+% Glossario
+
+%\LIMPA
+\bibliographystyle{IEEEtran}
+\bibliography{chapters/references/references}
+%\addcontentsline {toc} {chapter} {Bibliography}
+
+\end{document}
+

@@ -1,12 +1,12 @@
 from flask import Flask, request
 import requests
-import blockchain
+from blockchain import *
 import time
 import json
 
 app = Flask(__name__)
 
-blockchain = blockchain.Blockchain()
+blockchain = Blockchain()
 
 # host addresses of the p2p network
 peers = set()
@@ -36,7 +36,8 @@ def get_chain():
     for block in blockchain.chain:
         chain_data.append(block.__dict__)
     return json.dumps({"length": len(chain_data),
-                       "chain": chain_data})
+                       "chain": chain_data,
+                       "peers": list(peers)})
 
 
 # enpoint que efetua o mine das transaction nao confirmadas
@@ -45,13 +46,107 @@ def mine_unconfirmed_transactions():
     result = blockchain.mine()
     if not result:
         return "No transactions to mine"
-    return "Block #{} is mined.".format(result)
+    else:
+        # garante que temos a maior chain antes de a anunciar à rede
+        chain_length = len(blockchain.chain)
+        consensus()
+        if chain_length == len(blockchain.chain):
+            # anuncia o bloco minado mais recente à rede
+            announce_new_block(blockchain.last_block)
+        return "Block #{} is mined.".format(blockchain.last_block.index)
 
 
 # enpoint que retorna transactions nao confirmadas
 @app.route('/transactions/unconfirmed')
 def get_pending_tx():
     return json.dumps(blockchain.unconfirmed_transactions)
+
+
+# Endpoint para adicionar novos peers à rede
+@app.route('/node/register', methods=['POST'])
+def register_new_peers():
+    node_address = request.get_json()["node_address"]
+    if not node_address:
+        return "Invalid data", 400
+
+    peers.add(node_address)
+
+    return get_chain()
+
+
+# endpoint para adicionar um bloco minado por um no ao chain
+@app.route('/block/add', methods=['POST'])
+def verify_and_add_block():
+    block_data = request.get_json()
+    block = Block(block_data["index"],
+                  block_data["transactions"],
+                  block_data["timestamp"],
+                  block_data["previous_hash"],
+                  block_data["nonce"])
+
+    proof = block_data['hash']
+    added = blockchain.add_block(block, proof)
+
+    if not added:
+        return "The block was discarded by the node", 400
+
+    return "Block added to the chain", 201
+
+
+# endpoint para registo de novo nó
+@app.route('/register', methods=['POST'])
+def register_with_existing_node():
+    node_address = request.get_json()["node_address"]
+    if not node_address:
+        return "Invalid data", 400
+
+    data = {"node_address": request.host_url}
+    headers = {'Content-Type': "application/json"}
+
+    # faz um pedido para registo com no remoto e extrai informação
+    response = requests.post(node_address + "/node/register", data=json.dumps(data), headers=headers)
+
+    if response.status_code == 200:
+        global blockchain
+        global peers
+        # actualiza chain e peers
+        chain_dump = response.json()['chain']
+        blockchain = create_chain_from_dump(chain_dump)
+        peers.update(response.json()['peers'])
+        return "Registration successful", 200
+    else:
+        return response.content, response.status_code
+
+
+def consensus():
+    # se uma chain maior for encontrada é alterada
+    global blockchain
+
+    longest_chain = None
+    current_len = len(blockchain.chain)
+
+    for node in peers:
+        response = requests.get('{}chain'.format(node))
+        length = response.json()['length']
+        chain = response.json()['chain']
+        if length > current_len and blockchain.check_chain_validity(chain):
+            current_len = length
+            longest_chain = chain
+
+    if longest_chain:
+        blockchain = longest_chain
+        return True
+
+    return False
+
+
+def announce_new_block(block):
+    for peer in peers:
+        url = "{}add_block".format(peer)
+        headers = {'Content-Type': "application/json"}
+        requests.post(url,
+                      data=json.dumps(block.__dict__, sort_keys=True),
+                      headers=headers)
 
 
 app.run(debug=True, port=8000)

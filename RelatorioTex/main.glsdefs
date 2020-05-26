@@ -1,16 +1,16 @@
-\ifglsentryexists{nasa}{}%
+\ifglsentryexists{cd}{}%
 {%
-\gls@defglossaryentry{nasa}%
+\gls@defglossaryentry{cd}%
 {%
-name={NASA},%
-sort={NASA},%
+name={CD},%
+sort={CD},%
 type={acronym},%
-first={National Aeronautics and Space Administration\glsspace (NASA)},%
-firstplural={National Aeronautics and Space Administrations\glsspace (NASAs)},%
-text={NASA},%
-plural={NASAs},%
-description={National Aeronautics and Space Administration},%
-descriptionplural={National Aeronautics and Space Administration\acrpluralsuffix },%
+first={Computa\IeC {\c c}\IeC {\~a}o Distribu\IeC {\'\i }da\glsspace (CD)},%
+firstplural={Computa\IeC {\c c}\IeC {\~a}o Distribu\IeC {\'\i }das\glsspace (CDs)},%
+text={CD},%
+plural={CDs},%
+description={Computação Distribuída},%
+descriptionplural={Computação Distribuída\acrpluralsuffix },%
 symbol={\relax },%
 symbolplural={\relax },%
 user1={},%
@@ -19,10 +19,10 @@ user3={},%
 user4={},%
 user5={},%
 user6={},%
-long={National Aeronautics and Space Administration},%
-longplural={National Aeronautics and Space Administrations},%
-short={NASA},%
-shortplural={NASAs},%
+long={Computa\IeC {\c c}\IeC {\~a}o Distribu\IeC {\'\i }da},%
+longplural={Computa\IeC {\c c}\IeC {\~a}o Distribu\IeC {\'\i }das},%
+short={CD},%
+shortplural={CDs},%
 counter={page},%
 parent={},%
 %

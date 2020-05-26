@@ -159,6 +159,7 @@ def consensus():
     return False
 
 
+# anuncia os novos blocos na rede
 def announce_new_block(block):
     for peer in peers:
         url = "{}block/add".format(peer)

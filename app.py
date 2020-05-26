@@ -1,12 +1,13 @@
 from flask import Flask, request
 import requests
-from blockchain import *
+from node_server import *
 import time
 import json
 
 app = Flask(__name__)
 
 blockchain = Blockchain()
+blockchain.generate_genesis_block()
 
 # host addresses of the p2p network
 peers = set()
@@ -62,18 +63,6 @@ def get_pending_tx():
     return json.dumps(blockchain.unconfirmed_transactions)
 
 
-# Endpoint para adicionar novos peers à rede
-@app.route('/node/register', methods=['POST'])
-def register_new_peers():
-    node_address = request.get_json()["node_address"]
-    if not node_address:
-        return "Invalid data", 400
-
-    peers.add(node_address)
-
-    return get_chain()
-
-
 # endpoint para adicionar um bloco minado por um no ao chain
 @app.route('/block/add', methods=['POST'])
 def verify_and_add_block():
@@ -91,6 +80,18 @@ def verify_and_add_block():
         return "The block was discarded by the node", 400
 
     return "Block added to the chain", 201
+
+
+# Endpoint para adicionar novos peers à rede
+@app.route('/node/register', methods=['POST'])
+def register_new_peers():
+    node_address = request.get_json()["node_address"]
+    if not node_address:
+        return "Invalid data", 400
+
+    peers.add(node_address)
+
+    return get_chain()
 
 
 # endpoint para registo de novo nó
@@ -116,6 +117,24 @@ def register_with_existing_node():
         return "Registration successful", 200
     else:
         return response.content, response.status_code
+
+
+def create_chain_from_dump(chain_dump):
+    generated_blockchain = Blockchain()
+    generated_blockchain.generate_genesis_block()
+    for idx, block_data in enumerate(chain_dump):
+        if idx == 0:
+            continue  # passa bloco genesis
+        block = Block(block_data["index"],
+                      block_data["transactions"],
+                      block_data["timestamp"],
+                      block_data["previous_hash"],
+                      block_data["nonce"])
+        proof = block_data['hash']
+        added = generated_blockchain.add_block(block, proof)
+        if not added:
+            raise Exception("The chain is tampered!!")
+    return generated_blockchain
 
 
 def consensus():
@@ -147,5 +166,5 @@ def announce_new_block(block):
         requests.post(url, data=json.dumps(block.__dict__, sort_keys=True), headers=headers)
 
 
-# app.run(debug=True, port=8000)
-app.run(debug=True)
+app.run(debug=True, port=8000)
+# app.run(debug=True)

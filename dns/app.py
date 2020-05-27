@@ -1,5 +1,7 @@
-import datetime
-from flask import Flask, jsonify
+import datetime, sys, os
+from wsgiref.simple_server import WSGIServer
+
+from flask import Flask
 from dns.config import *
 from dns.routes import *
 
@@ -14,6 +16,9 @@ def index():
     return "Computação Distribuida : BlockChain" + ' {0:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
 
 
-if SERVER_MODE_DEV:
-    if __name__ == '__main__':
+if __name__ == '__main__':
+    if SERVER_MODE_DEV:
         app.run(host=SERVER_HOST, port=SERVER_PORT, debug=True)
+    else:
+        http_server = WSGIServer(('', SERVER_PORT), app)
+        http_server.serve_forever()

@@ -3,6 +3,7 @@ from dns.config import *
 from dns.routes import *
 
 app = Flask(__name__)
+# Regista o endpoint dnsRoute
 app.register_blueprint(dnsRoute)
 
 if SERVER_MODE_DEV:

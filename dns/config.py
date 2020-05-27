@@ -1,4 +1,4 @@
 # api settings
 SERVER_MODE_DEV = True
-SERVER_PORT = 80
+SERVER_PORT = 8000
 SERVER_HOST = '127.0.0.1'

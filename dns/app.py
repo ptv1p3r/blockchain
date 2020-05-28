@@ -1,11 +1,16 @@
-import datetime, sys, os
+import datetime
 from wsgiref.simple_server import WSGIServer
-
+import os
 from flask import Flask
+
 from dns.config import *
 from dns.routes import *
 
+# APP_ROOT = os.path.dirname(os.path.abspath(__file__))  # refers to application_top
+# CONFIG_ROOT = os.path.join(APP_ROOT, 'config.py')   # caminho para o ficheiro confyg.py
+
 app = Flask(__name__)
+
 # Regista o endpoint dnsRoute
 app.register_blueprint(dnsRoute)
 

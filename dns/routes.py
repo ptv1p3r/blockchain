@@ -51,14 +51,22 @@ def encrypt():
     [file_out.write(x) for x in (enc_session_key, cipher_aes.nonce, tag, ciphertext)]
     file_out.close()
 
-    return json.dumps({"conteudo": format(ciphertext)})
+    return json.dumps({"content": format(ciphertext)})
 
 
-@dnsRoute.route('/message/decrypt', methods=['Get'])
+@dnsRoute.route('/message/decrypt', methods=['POST'])
 def decrypt():
     # TODO: Possivelmente no futuro temos de ir buscar a encrypt data por request
+    data = request.get_json()
+    required_fields = ["content"]
+
+    for field in required_fields:
+        if not data.get(field):
+            return "Invalid transaction data", 404
+
     # Abre p ficheiro onde está a data a ser desincriptada
     file_in = open("encryptedData/encrypted_data.bin", "rb")
+    # jsonModel = data.get("content")
 
     # importa a chave privada
     private_key = RSA.import_key(open("keys/private.pem").read())
@@ -73,10 +81,11 @@ def decrypt():
     # Desencripta os dados com a chave de sessão AES
     cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
     data = cipher_aes.decrypt_and_verify(ciphertext, tag)
-    # print(data.decode("utf-8"))
+    print(data.decode("utf-8"))
 
     # dataJson = json.dumps(data.decode("utf-8"), indent=2)
     #
-    # print(dataJson)
+    # print(json.dumps(data.decode("utf-8"), indent=2))
 
-    return json.dumps({"conteudo": data.decode("utf-8")})
+    return json.dumps({"conteudo": format(data.decode("utf-8"))})
+# data.decode("utf-8")}

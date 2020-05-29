@@ -8,6 +8,7 @@ from Crypto.Cipher import AES, PKCS1_OAEP
 import json
 import base64
 import sys
+import math
 
 dnsRoute = Blueprint('dnsRoute', __name__)
 
@@ -52,15 +53,29 @@ def encrypt():
 
     # TODO: Transformar array de bytes em ut8
     testeA = base64.b64encode(enc_session_key)
-    testeB = cipher_aes.nonce
-    testeC = tag
-    testeD = ciphertext
+    testeB = base64.b64encode(cipher_aes.nonce)
+    testeC = base64.b64encode(tag)
+    testeD = base64.b64encode(ciphertext)
 
-    [file_out.write(x) for x in (enc_session_key, cipher_aes.nonce, tag, ciphertext)]
-    file_out.close()
+    # [file_out.write(x) for x in (enc_session_key, cipher_aes.nonce, tag, ciphertext)]
+    # file_out.close()
 
-    return json.dumps({"content": "O content foi encryptado"})
+    print(ciphertext)
 
+    # print(testeA)
+    # print(testeB)
+    # print(testeC)
+    # print(testeD)
+
+    teste = testeA, testeB, testeC, testeD
+
+    tete = str(testeA), str(testeB), str(testeC), str(testeD)
+    s = ','
+    print(s.join(tete))
+    # print(tete)
+    # print(teste)
+
+    return json.dumps({"content": format(s.join(tete))})
 
 @dnsRoute.route('/message/decrypt', methods=['POST'])
 def decrypt():
@@ -71,15 +86,32 @@ def decrypt():
         if not data.get(field):
             return "Invalid transaction data", 404
 
-    # TODO: Possivelmente no futuro temos de ir buscar a encrypt data por request (ele está a ler a do ficheiro encrypted_data.bin)
-    # Abre p ficheiro onde está a data a ser desincriptada
-    file_in = open("encryptedData/encrypted_data.bin", "rb")
+    data = data.get("content")
+
+    # # TODO: Falta corrigir o decrypt dos dados
 
     # importa a chave privada
     private_key = RSA.import_key(open("keys/private.pem").read())
 
-    enc_session_key, nonce, tag, ciphertext = \
-        [file_in.read(x) for x in (private_key.size_in_bytes(), 16, 16, -1)]
+    # enc_session_key, nonce, tag, ciphertext = \
+    #     [file_in.read(x) for x in (private_key.size_in_bytes(), 16, 16, -1)]
+
+    enc_session_key, nonce, tag, ciphertext = data.split(',')
+
+    testeA = enc_session_key
+    testeB = nonce
+    testeC = tag
+    testeD = ciphertext
+
+    print(testeA)
+    print(testeB)
+    print(testeC)
+    print(testeD)
+
+    enc_session_key = base64.b64decode(enc_session_key)
+    nonce = base64.b64decode(nonce)
+    tag = base64.b64decode(tag)
+    ciphertext = base64.b64decode(ciphertext)
 
     # Desencripta a chave de sessão com a chave privada RSA
     cipher_rsa = PKCS1_OAEP.new(private_key)
@@ -90,5 +122,5 @@ def decrypt():
     data = cipher_aes.decrypt_and_verify(ciphertext, tag)
     print(data.decode("utf-8"))
 
-    return json.dumps({"conteudo": format(data.decode("utf-8"))})
+    return json.dumps({"content": format(data.decode("utf-8"))})
 # format(data.decode("utf-8"))

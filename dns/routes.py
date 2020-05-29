@@ -97,7 +97,7 @@ def decrypt():
     cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
     data = cipher_aes.decrypt_and_verify(ciphertext, tag)
 
-    # Formatação do outputt
+    # Formatação do output
     data = str(data, 'utf-8')
     data = data.replace('"', "")
 

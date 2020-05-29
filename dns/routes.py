@@ -42,10 +42,14 @@ def keysVerify():
     privateKeyPath = os.path.join(keysPath, 'private.pem')
     publicKeyPath = os.path.join(keysPath, 'receiver.pem')
 
+    # verifica se a pasta keys existe, se não, então é criada
+    if not path.exists(privateKeyPath):
+        os.makedirs(keysPath)
+
     # verifica se as chaves existem
     # se existir apenas uma key em falta ele repoem e substitui
     # se a outra existir ele substitui para prevenir que alguma key existente esteja corrompida
-    if path.exists(privateKeyPath) is False or path.exists(publicKeyPath) is False:
+    if not path.exists(privateKeyPath) or not path.exists(publicKeyPath):
         generateKeys()
 
 

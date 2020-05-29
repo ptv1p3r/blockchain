@@ -48,21 +48,23 @@ def encrypt():
     cipher_aes = AES.new(session_key, AES.MODE_EAX)
     ciphertext, tag = cipher_aes.encrypt_and_digest(data)
 
-    # TODO: Organizar esta confusão que está aqui
-    testeA = base64.b64encode(enc_session_key)
-    testeB = base64.b64encode(cipher_aes.nonce)
-    testeC = base64.b64encode(tag)
-    testeD = base64.b64encode(ciphertext)
+    # Encode em base64
+    enc_session_key = base64.b64encode(enc_session_key)
+    cipher_aes = base64.b64encode(cipher_aes.nonce)
+    tag = base64.b64encode(tag)
+    ciphertext = base64.b64encode(ciphertext)
 
-    testeA = testeA.decode("utf-8")
-    testeB = testeB.decode("utf-8")
-    testeC = testeC.decode("utf-8")
-    testeD = testeD.decode("utf-8")
+    # Decode da chave para ir apenas o conteudo
+    enc_session_key = enc_session_key.decode("utf-8")
+    cipher_aes = cipher_aes.decode("utf-8")
+    tag = tag.decode("utf-8")
+    ciphertext = ciphertext.decode("utf-8")
 
-    tete = str(testeA), str(testeB), str(testeC), str(testeD)
+    #String completa
+    content = str(enc_session_key), str(cipher_aes), str(tag), str(ciphertext)
     s = ','
 
-    return json.dumps({"content": format(s.join(tete))})
+    return json.dumps({"content": format(s.join(content))})
 
 
 @dnsRoute.route('/message/decrypt', methods=['POST'])

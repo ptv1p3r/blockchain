@@ -45,13 +45,13 @@ def keysVerify():
     # verifica se as chaves existem
     # se existir apenas uma key em falta ele repoem e substitui
     # se a outra existir ele substitui para prevenir que alguma key existente esteja corrompida
-    if str(path.exists(privateKeyPath)) is False or str(path.exists(publicKeyPath)) is False:
+    if path.exists(privateKeyPath) is False or path.exists(publicKeyPath) is False:
         generateKeys()
 
 
 @dnsRoute.route('/message/encrypt', methods=['POST'])
 def encrypt():
-    generateKeys()
+    keysVerify()
     data = request.get_json()
     required_fields = ["content"]
 

@@ -13,11 +13,6 @@ import math
 dnsRoute = Blueprint('dnsRoute', __name__)
 
 
-@dnsRoute.route('/helo')
-def hello():
-    return jsonify({'message': "Hello"})
-
-
 @dnsRoute.route('/message/encrypt', methods=['POST'])
 def encrypt():
     data = request.get_json()

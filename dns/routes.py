@@ -36,9 +36,6 @@ def encrypt():
     # Adiciona o 1° argumento a data
     data = jsonFormat
 
-    # abre o ficheiro "encrypted_data.bin" onde vai ser armazenada a informação do 1° argumento
-    file_out = open("encryptedData/encrypted_data.bin", "wb")
-
     # Verifica a chave publica
     recipient_key = RSA.import_key(open("keys/receiver.pem").read())
     session_key = get_random_bytes(16)
@@ -97,8 +94,11 @@ def decrypt():
     cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
     data = cipher_aes.decrypt_and_verify(ciphertext, tag)
 
+    # TODO: Corrigir a saida
     print(data)
-    data = data.decode("utf-8")
-    str(data)
+    data = str(data)
+    data = data.replace('"', "")
+    # TODO: Possivelmente passar a string para objeto fazer um decode e tá para transformar a string b'conteudo' em conteudo
+    print(data)
 
-    return json.dumps({"content": format(data)})
+    return json.dumps({"content": data})

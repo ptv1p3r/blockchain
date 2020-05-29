@@ -81,6 +81,7 @@ def decrypt():
     # importa a chave privada
     private_key = RSA.import_key(open("keys/private.pem").read())
 
+    # Separação dos dados recebidos
     enc_session_key, nonce, tag, ciphertext = data.split(',')
 
     enc_session_key = base64.b64decode(enc_session_key.encode("utf-8"))
@@ -96,11 +97,8 @@ def decrypt():
     cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
     data = cipher_aes.decrypt_and_verify(ciphertext, tag)
 
-    # TODO: Corrigir a saida
-    print(data)
-    data = str(data)
+    # Formatação do output
+    data = str(data, 'utf-8')
     data = data.replace('"', "")
-    # TODO: Possivelmente passar a string para objeto fazer um decode e tá para transformar a string b'conteudo' em conteudo
-    print(data)
 
     return json.dumps({"content": data})

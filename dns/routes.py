@@ -1,6 +1,9 @@
 from flask import Blueprint, jsonify
 from Crypto.PublicKey import RSA
 
+import os.path
+from os import path
+
 from flask import request
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
@@ -8,13 +11,47 @@ from Crypto.Cipher import AES, PKCS1_OAEP
 import json
 import base64
 import sys
-import math
 
 dnsRoute = Blueprint('dnsRoute', __name__)
 
 
+def generateKeys():
+    # Define corretamente os caminhos onde as keys vão ser guardadas
+    app_root = os.path.dirname(os.path.abspath(__file__))
+    keysPath = os.path.join(app_root, 'keys')
+    privateKeyPath = os.path.join(keysPath, 'private.pem')
+    publicKeyPath = os.path.join(keysPath, 'receiver.pem')
+
+    key = RSA.generate(2048)
+    # Gera uma chave privada e armazena no ficheiro "private.pem"
+    private_key = key.export_key()
+    file_out = open(privateKeyPath, "wb")
+    file_out.write(private_key)
+    file_out.close()
+
+    # Gera uma chave publica e armazena no ficheiro "reciever.pem"
+    public_key = key.publickey().export_key()
+    file_out = open(publicKeyPath, "wb")
+    file_out.write(public_key)
+    file_out.close()
+
+def keysVerify():
+    # Define corretamente os caminhos onde as keys vão ser guardadas
+    app_root = os.path.dirname(os.path.abspath(__file__))
+    keysPath = os.path.join(app_root, 'keys')
+    privateKeyPath = os.path.join(keysPath, 'private.pem')
+    publicKeyPath = os.path.join(keysPath, 'receiver.pem')
+
+    # verifica se as chaves existem
+    # se existir apenas uma key em falta ele repoem e substitui
+    # se a outra existir ele substitui para prevenir que alguma key existente esteja corrompida
+    if str(path.exists(privateKeyPath)) is False or str(path.exists(publicKeyPath)) is False:
+        generateKeys()
+
+
 @dnsRoute.route('/message/encrypt', methods=['POST'])
 def encrypt():
+    generateKeys()
     data = request.get_json()
     required_fields = ["content"]
 
@@ -55,7 +92,7 @@ def encrypt():
     tag = tag.decode("utf-8")
     ciphertext = ciphertext.decode("utf-8")
 
-    #String completa
+    # String completa
     content = str(enc_session_key), str(cipher_aes), str(tag), str(ciphertext)
     s = ','
 

@@ -18,7 +18,7 @@ app.register_blueprint(dnsRoute)
 # Aviso no IP 127.0.0.1
 @app.route("/")
 def index():
-    return "Computação Distribuida : BlockChain" + ' {0:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+    return "Computação Distribuida : BlockChain DNS" + ' {0:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
 
 
 if __name__ == '__main__':

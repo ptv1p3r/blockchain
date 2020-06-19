@@ -1,8 +1,9 @@
 import os
 # api settings
 SERVER_MODE_DEV = True
-SERVER_PORT = 8000
+SERVER_PORT = 5000
 SERVER_HOST = '127.0.0.1'
+# SERVER_HOST = '192.168.2.21'
 
 # TODO: UNIFORMIZAR OS CAMINHOS DE ROOT
 # TODO : Delinear o serviço de DNS, comunicar as coisas uma com as outras

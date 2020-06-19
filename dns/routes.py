@@ -144,4 +144,5 @@ def decrypt():
 @dnsRoute.route('/message/connectTest', methods=['GET'])
 def hello():
     msg = 'Hello Roldan'
-    return jsonify({"Mensagem": msg})
+    ip_address = request.remote_addr
+    return jsonify({'ip': ip_address, 'Mensagem': msg}), 200

@@ -17,7 +17,7 @@ app.register_blueprint(dnsRoute)
 
 @app.route("/")
 def index():
-    return "Computação Distribuida : BlockChain DNS" + ' {0:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+    return "ISMAT 2020 Computação Distribuida : BlockChain DNS" + ' {0:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
 
 
 if __name__ == '__main__':

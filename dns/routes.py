@@ -35,6 +35,7 @@ def generateKeys():
     file_out.write(public_key)
     file_out.close()
 
+
 def keysVerify():
     # Define corretamente os caminhos onde as keys vão ser guardadas
     app_root = os.path.dirname(os.path.abspath(__file__))
@@ -138,3 +139,9 @@ def decrypt():
     data = data.replace('"', "")
 
     return json.dumps({"content": data})
+
+
+@dnsRoute.route('/message/connectTest', methods=['GET'])
+def hello():
+    msg = 'Hello Roldan'
+    return jsonify({"Mensagem": msg})

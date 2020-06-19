@@ -1,8 +1,16 @@
+import datetime
+
 from flask import Flask, request
 import requests
+from config import *
 from node_server import *
 import time
 import json
+
+dns_url_header = 'http://'
+dns_host = None
+response = None
+
 
 app = Flask(__name__)
 
@@ -11,6 +19,22 @@ blockchain.generate_genesis_block()
 
 # host addresses of the p2p network
 peers = set()
+
+# connect to dns
+if DNS_IsSSL:
+    dns_url_header = 'https://'
+
+dns_host = dns_url_header + DNS_HOST_IP + ':' + str(DNS_HOST_PORT)
+
+endpoint = dns_host + '/message/connectTest'
+
+response = requests.get(endpoint).json()
+print(response)
+
+
+@app.route("/")
+def index():
+    return "ISMAT 2020 Computação Distribuida : BlockChain Node" + ' {0:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
 
 
 # endpoint para novas transactions(data)
@@ -167,5 +191,6 @@ def announce_new_block(block):
         requests.post(url, data=json.dumps(block.__dict__, sort_keys=True), headers=headers)
 
 
-app.run(debug=True, port=8000)
-# app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True, port=8000)
+

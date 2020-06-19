@@ -1,6 +1,6 @@
 import os
 # api settings
-SERVER_MODE_DEV = True
+SERVER_MODE_DEV = False
 SERVER_PORT = 5000
 SERVER_HOST = '127.0.0.1'
 # SERVER_HOST = '192.168.2.21'

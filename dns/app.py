@@ -15,7 +15,6 @@ app = Flask(__name__)
 app.register_blueprint(dnsRoute)
 
 
-# Aviso no IP 127.0.0.1
 @app.route("/")
 def index():
     return "Computação Distribuida : BlockChain DNS" + ' {0:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())

@@ -19,9 +19,6 @@ from bitcoinutils.keys import P2pkhAddress, PrivateKey, PublicKey
 
 dnsRoute = Blueprint('dnsRoute', __name__)
 
-# peers = ["'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time()",
-#          "'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time() versao 2"]
-
 peers = []
 
 
@@ -170,12 +167,14 @@ def hello():
 
         # Adiciona o 1° argumento a data
         data = jsonFormat
-
         content = addressencrypt(data)
+        data = str(data, 'utf-8')
+        now = str(datetime.now())
 
-        pear = {'bitcoin_address': content, 'ip': '127.0.0.1', 'timestamp': 'teste'}
+        pear = {'bitcoin_address': content, 'ip': data, 'timestamp': now}
         peers.append(pear)
         print(peers)
+
         return jsonify({'ok': True, "message": format(content)}), 200
     except:
         return jsonify({'ok': False, 'message': 'Something Failed'}), 400

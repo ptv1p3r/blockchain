@@ -27,6 +27,21 @@ dnsRoute = Blueprint('dnsRoute', __name__)
 peers = []
 
 
+def addressencrypt(ip):
+    # always remember to setup the network
+    setup('mainnet')
+    # create a private key (deterministically)
+    priv = PrivateKey(secret_exponent=1)
+    # get the public key
+    pub = priv.get_public_key()
+    # get address from public key
+    # address = pub.get_address()
+    # sign a message with the private key and verify it
+    message = str(ip)
+    signature = priv.sign_message(message)
+    return signature
+
+
 def removePeer(bit_address):
     global peers
     peers = list(filter(lambda x: x['bitcoin_address'] != bit_address, peers))
@@ -166,8 +181,6 @@ def hello():
         keysVerify()
         data = request.get_json()
 
-
-
         jsonModel = data.get('ip')
         jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
 
@@ -191,28 +204,12 @@ def hello():
         return jsonify({'ok': False, 'message': 'Something Failed'}), 400
 
 
-
 @dnsRoute.route('/removePeer', methods=['POST'])
 def peerCheck():
     data = request.get_json()
     bitAddress = data.get('bitAddress')
     peers = removePeer(bitAddress)
     return jsonify({'ok': True, "message": format(peers)}), 200
-
-
-def addressencrypt(ip):
-    # always remember to setup the network
-    setup('mainnet')
-    # create a private key (deterministically)
-    priv = PrivateKey(secret_exponent=1)
-    # get the public key
-    pub = priv.get_public_key()
-    # get address from public key
-    address = pub.get_address()
-    # sign a message with the private key and verify it
-    message = str(ip, 'utf-8')
-    signature = priv.sign_message(message)
-    return signature
 
 
 @dnsRoute.route('/ttl/', methods=['GET'])
@@ -235,7 +232,7 @@ def ttl():
 def peersList():
     if peers is not None:
         try:
-            return jsonify({'ok': True, "message": list(peers)}), 200
+            return jsonify({'ok': True, "message": peers}), 200
         except TypeError:
             return jsonify({'ok': False, "message": 'List Not Found'}), 400
 
@@ -246,5 +243,25 @@ def dnsResolution(address):
         return jsonify({'ok': True, "message": format(address)}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
+
+
+@dnsRoute.route('/translation/address/<ip>', methods=['GET'])
+def translate_address(ip):
+    if ip is not None:
+        try:
+            bitcoin_address = addressencrypt(ip)
+            return jsonify({'ok': True, "message": bitcoin_address}), 200
+        except:
+            return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
+
+
+@dnsRoute.route('/translation/ip/<address>', methods=['GET'])
+def translate_ip(address):
+    if address is not None:
+        try:
+            # bitcoin_address = addressencrypt(ip)
+            return jsonify({'ok': True, "message": "192.168.1.101"}), 200
+        except:
+            return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
 
 # TODO: METODO GET , Passas BITCOIN NODE ADDRESS E DEVOLVES IP , procurar no array, ver se existe, se sim, retornar, se nao, devolver que nao existe (not found)

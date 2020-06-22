@@ -52,8 +52,6 @@ def index():
                            node_address=CONNECTED_NODE_ADDRESS,
                            readable_time=timestamp_to_string)
 
-    # return "ISMAT 2020 Computação Distribuida : BlockChain Node" + ' {0:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
-
 
 @app.route('/submit', methods=['POST'])
 def submit_textarea():

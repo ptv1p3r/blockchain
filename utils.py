@@ -22,8 +22,11 @@ def dns_hello():
 
     endpoint = dns_host + '/hello'
 
-    host_name = socket.gethostname()
-    # host_ip = socket.gethostbyname(host_name)
+    tt = ni.gateways()
+    tt2 = ni.gateways()['default'][ni.AF_INET][1]
+    tt3 = ni.ifaddresses(tt2)[ni.AF_INET][0]['addr']
+
+
     for ifaces in ni.interfaces():
         ipaddress = ni.ifaddresses(ifaces)
         if ni.AF_INET in ipaddress:

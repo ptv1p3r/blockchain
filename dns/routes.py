@@ -141,16 +141,15 @@ def decrypt():
     return json.dumps({"content": data})
 
 
-@dnsRoute.route('/hello', methods=['GET'])
+@dnsRoute.route('/hello', methods=['POST'])
 # TODO : Metodo Post, recebes IP e devolves o valor cifrado
 def hello():
     try:
         keysVerify()
         data = request.get_json()
-        # required_fields = ["ip"]
-
-        ip_address = request.remote_addr
-        jsonFormat = json.dumps(ip_address, ensure_ascii=False).encode('utf8')
+        required_fields = ["ip"]
+        jsonModel = data.get("ip")
+        jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
         # Adiciona o 1° argumento a data
         data = jsonFormat
         # Verifica a chave publica

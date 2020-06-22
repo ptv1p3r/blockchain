@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, make_response
+from flask import Blueprint, jsonify
 from Crypto.PublicKey import RSA
 
 import os.path
@@ -14,10 +14,15 @@ import array as arr
 from datetime import datetime
 import sys
 
+from bitcoinutils.setup import setup
+from bitcoinutils.keys import P2pkhAddress, PrivateKey, PublicKey
+
 dnsRoute = Blueprint('dnsRoute', __name__)
 
 peers = ["'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time()",
          "'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time() versao 2"]
+
+
 
 
 def generateKeys():
@@ -150,7 +155,7 @@ def decrypt():
 # TODO : array em que cada hello 200 que devolva o IP, colocar IP, Endereço e TimeStamp dentro do array. mas temos que verificar se já existe.
 def hello():
     try:
-
+        ip_list = []
         keysVerify()
         data = request.get_json()
         required_fields = ['ip']
@@ -163,22 +168,8 @@ def hello():
 
         # Adiciona o 1° argumento a data
         data = jsonFormat
-        # Verifica a chave publica
-        recipient_key = RSA.import_key(open("keys/receiver.pem").read())
-        session_key = get_random_bytes(16)
-        # Encripta a chave de sessão com a chave RSA public
-        cipher_rsa = PKCS1_OAEP.new(recipient_key)
-        enc_session_key = cipher_rsa.encrypt(session_key)
-        # Encripta os dados com a chave de sessão AES
-        cipher_aes = AES.new(session_key, AES.MODE_EAX)
-        ciphertext, tag = cipher_aes.encrypt_and_digest(data)
-        # Encode em base64
-        enc_session_key = base64.b64encode(enc_session_key)
-        cipher_aes = base64.b64encode(cipher_aes.nonce)
-        tag = base64.b64encode(tag)
-        ciphertext = base64.b64encode(ciphertext)
-        # String completa
-        content = str(ciphertext)
+
+        content = addressencrypt(data)
 
         # ip_content = {'bitcoin_address': content, 'ip': jsonFormat, 'timestamp': datetime.time()}
         # ip_list.append(ip_content)
@@ -188,26 +179,55 @@ def hello():
         return jsonify({'ok': False, 'message': 'Something Failed'}), 400
 
 
+def addressencrypt(ip):
+    # always remember to setup the network
+    setup('mainnet')
+
+    # create a private key (deterministically)
+    priv = PrivateKey(secret_exponent=1)
+
+    # compressed is the default
+    # print("\nPrivate key WIF:", priv.to_wif(compressed=True))
+
+    # could also instantiate from existing WIF key
+    # priv = PrivateKey.from_wif('KwDiBf89qGgbjEhKnhxjUh7LrciVRzI3qYjgd9m7Rfu73SvHnOwn')
+
+    # get the public key
+    pub = priv.get_public_key()
+
+    # compressed is the default
+    # print("Public key:", pub.to_hex(compressed=True))
+
+    # get address from public key
+    address = pub.get_address()
+
+    # print the address and hash160 - default is compressed address
+    print("Address:", address.to_string())
+    print("Hash160:", address.to_hash160())
+
+    print("\n--------------------------------------\n")
+
+    # sign a message with the private key and verify it
+    message = str(ip, 'utf-8')
+    # message = "127.0.0.1:8000"
+    signature = priv.sign_message(message)
+    print("The message to sign:", message)
+    print("The signature is:", signature)
+
+    if PublicKey.verify_message(address.to_string(), signature, message):
+        print("The signature is valid!")
+    else:
+        print("The signature is NOT valid!")
+
+    return signature
+
+
+
 @dnsRoute.route('/dnsresolution/<address>', methods=['GET'])
 def dnsResolution(address):
-    if address is not None:
-        try:
-            return jsonify({'ok': True, "message": '192.168.1.101'}), 200
-        except TypeError:
-            return jsonify({'ok': False, "message": 'Missing parameters'}), 400
-    else:
-        return jsonify({'ok': False, 'message': 'BAD REQUEST'}), 400
-
+    try:
+        return jsonify({'ok': True, "message": format(address)}), 200
+    except:
+        return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
 
 # TODO: METODO GET , Passas BITCOIN NODE ADDRESS E DEVOLVES IP , procurar no array, ver se existe, se sim, retornar, se nao, devolver que nao existe (not found)
-
-
-@dnsRoute.route('/peers', methods=['GET'])
-def peersList():
-    if peers is not None:
-        try:
-            return jsonify({'ok': True, "message": list(peers)}), 200
-        except TypeError:
-            return jsonify({'ok': False, "message": 'List Not Found'}), 400
-    else:
-        return jsonify({'ok': False, 'message': 'BAD REQUEST'}), 400

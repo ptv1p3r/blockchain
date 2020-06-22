@@ -168,7 +168,7 @@ def hello():
         ciphertext = base64.b64encode(ciphertext)
         # String completa
         content = str(ciphertext)
-        return jsonify({"content": format(content)}), 200
+        return jsonify({'ok': True, "message": format(content)}), 200
     except:
         return jsonify({'ok': False, 'message': 'Something Failed'}), 400
 

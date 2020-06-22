@@ -24,13 +24,15 @@ from bitcoinutils.keys import P2pkhAddress, PrivateKey, PublicKey
 dnsRoute = Blueprint('dnsRoute', __name__)
 
 peers = []
-# ip = "8.8.8.8"
 
+
+# ip = "8.8.8.8"
 
 
 def removePeer(bit_address):
     global peers
     peers = list(filter(lambda x: x['bitcoin_address'] != bit_address, peers))
+    return peers
 
 
 def generateKeys():
@@ -182,8 +184,6 @@ def hello():
 
         pear = {'bitcoin_address': content, 'ip': data.replace('"', ""), 'timestamp': now}
         peers.append(pear)
-        print(peers)
-
         return jsonify({'ok': True, "message": format(content)}), 200
     except:
         return jsonify({'ok': False, 'message': 'Something Failed'}), 400
@@ -193,50 +193,22 @@ def hello():
 def peerCheck():
     data = request.get_json()
     bitAddress = data.get('bitAddress')
-    pear = removePeer(bitAddress)
-    return jsonify({'ok': True, "message": format(pear)}), 200
+    peers = removePeer(bitAddress)
+    return jsonify({'ok': True, "message": format(peers)}), 200
 
 
 def addressencrypt(ip):
     # always remember to setup the network
     setup('mainnet')
-
     # create a private key (deterministically)
     priv = PrivateKey(secret_exponent=1)
-
-    # compressed is the default
-    # print("\nPrivate key WIF:", priv.to_wif(compressed=True))
-
-    # could also instantiate from existing WIF key
-    # priv = PrivateKey.from_wif('KwDiBf89qGgbjEhKnhxjUh7LrciVRzI3qYjgd9m7Rfu73SvHnOwn')
-
     # get the public key
     pub = priv.get_public_key()
-
-    # compressed is the default
-    # print("Public key:", pub.to_hex(compressed=True))
-
     # get address from public key
     address = pub.get_address()
-
-    # print the address and hash160 - default is compressed address
-    # print("Address:", address.to_string())
-    # print("Hash160:", address.to_hash160())
-
-    # print("\n--------------------------------------\n")
-
     # sign a message with the private key and verify it
     message = str(ip, 'utf-8')
-    # message = "127.0.0.1:8000"
     signature = priv.sign_message(message)
-    # print("The message to sign:", message)
-    # print("The signature is:", signature)
-
-    # if PublicKey.verify_message(address.to_string(), signature, message):
-    #     print("The signature is valid!")
-    # else:
-    #     print("The signature is NOT valid!")
-
     return signature
 
 

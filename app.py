@@ -10,7 +10,7 @@ import socket
 dns_url_header = 'http://'
 dns_host = None
 response = None
-
+responseStatus = False
 
 app = Flask(__name__)
 
@@ -31,8 +31,12 @@ endpoint = dns_host + '/hello'
 host_name = socket.gethostname()
 host_ip = socket.gethostbyname(host_name)
 
+headers = {'content-type': 'application/json'}
 payload = {'ip': host_ip}
-response = requests.post(endpoint, data=payload).json()
+
+response = requests.post(endpoint, data=json.dumps(payload), headers=headers).json()
+if not response.status_code == 400:
+    responseStatus = True
 
 
 @app.route("/")

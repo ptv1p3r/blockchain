@@ -188,7 +188,7 @@ def hello():
 @dnsRoute.route('/dnsresolution/<address>', methods=['GET'])
 def dnsResolution(address):
     try:
-        return jsonify({'ok': True, "message": format(address)}), 200
+        return jsonify({'ok': True, "message": '192.168.1.101'}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
 

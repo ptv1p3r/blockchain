@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, request
+from flask import Flask, request, render_template, redirect
 from node_server import *
 import time
 from utils import *
@@ -10,18 +10,29 @@ app = Flask(__name__)
 blockchain = Blockchain()
 blockchain.generate_genesis_block()
 
+CONNECTED_NODE_ADDRESS = "http://127.0.0.1:5000"
+
 # host addresses of the p2p network
 peers = set()
-nodes = []
+nodes_ledger = []
+nodes = set()
+posts = []
 
-# # contact dns for bitcoin address
-# bitcoin_node_address = dns_hello()
-#
-# # get node list from dns
-# nodes.append(dns_nodes_get())
 
-# if bitcoin_node_address is not None:
-#     nodes.add(bitcoin_node_address)
+def fetch_posts():
+    get_chain_address = "{}/chain".format(CONNECTED_NODE_ADDRESS)
+    response = requests.get(get_chain_address)
+    if response.status_code == 200:
+        content = []
+        chain = json.loads(response.content)
+        for block in chain["chain"]:
+            for tx in block["transactions"]:
+                tx["index"] = block["index"]
+                tx["hash"] = block["previous_hash"]
+                content.append(tx)
+
+        global posts
+        posts = sorted(content, key=lambda k: k['timestamp'], reverse=True)
 
 
 @app.route("/")
@@ -30,8 +41,42 @@ def index():
     bitcoin_node_address = dns_hello()
 
     # get node list from dns
-    nodes.append(dns_nodes_get())
-    return "ISMAT 2020 Computação Distribuida : BlockChain Node" + ' {0:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+    nodes_ledger.append(dns_nodes_get())
+    # tt = get_chain()
+
+    fetch_posts()
+    return render_template('index.html',
+                           title='ISMAT 2020 Computação Distribuida : BlockChain Node '
+                                 '{0:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now()),
+                           posts=posts,
+                           node_address=CONNECTED_NODE_ADDRESS,
+                           readable_time=timestamp_to_string)
+
+    # return "ISMAT 2020 Computação Distribuida : BlockChain Node" + ' {0:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+
+
+@app.route('/submit', methods=['POST'])
+def submit_textarea():
+    post_content = request.form["content"]
+    author = request.form["author"]
+
+    post_object = {
+        'author': author,
+        'content': post_content,
+    }
+
+    # Submit a transaction
+    new_tx_address = "{}/transactions/new".format(CONNECTED_NODE_ADDRESS)
+
+    requests.post(new_tx_address,
+                  json=post_object,
+                  headers={'Content-type': 'application/json'})
+
+    return redirect('/')
+
+
+def timestamp_to_string(epoch_time):
+    return datetime.datetime.fromtimestamp(epoch_time).strftime('%H:%M')
 
 
 # endpoint para novas transactions(data)
@@ -55,11 +100,16 @@ def new_transaction():
 @app.route('/chain', methods=['GET'])
 def get_chain():
     chain_data = []
+
+    for _node in nodes_ledger[0]:
+        nodes.add(_node['bitcoin_address'])
+
     for block in blockchain.chain:
         chain_data.append(block.__dict__)
     return json.dumps({"length": len(chain_data),
                        "chain": chain_data,
-                       "peers": list(peers)})
+                       "peers": list(peers),
+                       "nodes": list(nodes)})
 
 
 # enpoint que efetua o mine das transaction nao confirmadas

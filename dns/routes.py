@@ -141,8 +141,33 @@ def decrypt():
     return json.dumps({"content": data})
 
 
-@dnsRoute.route('/message/connectTest', methods=['GET'])
+@dnsRoute.route('/message/hello', methods=['POST'])
+# TODO : Metodo Post, recebes IP e devolves o valor cifrado
 def hello():
-    msg = 'Hello Roldan'
+    keysVerify()
+    data = request.get_json()
+    required_fields = ["ip"]
+
     ip_address = request.remote_addr
-    return jsonify({'ip': ip_address, 'Mensagem': msg}), 200
+    jsonFormat = json.dumps(ip_address, ensure_ascii=False).encode('utf8')
+    # Adiciona o 1° argumento a data
+    data = jsonFormat
+    # Verifica a chave publica
+    recipient_key = RSA.import_key(open("keys/receiver.pem").read())
+    session_key = get_random_bytes(16)
+    # Encripta a chave de sessão com a chave RSA public
+    cipher_rsa = PKCS1_OAEP.new(recipient_key)
+    enc_session_key = cipher_rsa.encrypt(session_key)
+    # Encripta os dados com a chave de sessão AES
+    cipher_aes = AES.new(session_key, AES.MODE_EAX)
+    ciphertext, tag = cipher_aes.encrypt_and_digest(data)
+    # Encode em base64
+    enc_session_key = base64.b64encode(enc_session_key)
+    cipher_aes = base64.b64encode(cipher_aes.nonce)
+    tag = base64.b64encode(tag)
+    ciphertext = base64.b64encode(ciphertext)
+    # String completa
+    content = str(ciphertext)
+    return json.dumps({"content": format(content)})
+
+

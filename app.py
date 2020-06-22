@@ -14,11 +14,11 @@ blockchain.generate_genesis_block()
 peers = set()
 nodes = []
 
-# contact dns for bitcoin address
-bitcoin_node_address = dns_hello()
-
-# get node list from dns
-nodes.append(dns_nodes_get())
+# # contact dns for bitcoin address
+# bitcoin_node_address = dns_hello()
+#
+# # get node list from dns
+# nodes.append(dns_nodes_get())
 
 # if bitcoin_node_address is not None:
 #     nodes.add(bitcoin_node_address)
@@ -26,6 +26,11 @@ nodes.append(dns_nodes_get())
 
 @app.route("/")
 def index():
+    # contact dns for bitcoin address
+    bitcoin_node_address = dns_hello()
+
+    # get node list from dns
+    nodes.append(dns_nodes_get())
     return "ISMAT 2020 Computação Distribuida : BlockChain Node" + ' {0:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
 
 
@@ -184,7 +189,8 @@ def announce_new_block(block):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=6000)
+    app.run(debug=True, port=5000)
+
 
 
 

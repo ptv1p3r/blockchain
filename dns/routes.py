@@ -171,7 +171,7 @@ def hello():
         data = str(data, 'utf-8')
         now = str(datetime.now())
 
-        pear = {'bitcoin_address': content, 'ip': data, 'timestamp': now}
+        pear = {'bitcoin_address': content, 'ip': data.replace('"', ""), 'timestamp': now}
         peers.append(pear)
         print(peers)
 

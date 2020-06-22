@@ -240,9 +240,9 @@ def hello():
         now = str(datetime.now())
 
         if next(filter(lambda x: x['ip'] == data, peers), None):
-            return {'message': None}, 404
+            return jsonify({'ok': False, 'message': None}), 404
         elif next(filter(lambda x: x['bitcoin_address'] == content, peers), None):
-            return {'message': None}, 404
+            return jsonify({'ok': False, 'message': None}), 404
         else:
             pear = {'bitcoin_address': content, 'ip': data, 'timestamp': now}
             peers.append(pear)

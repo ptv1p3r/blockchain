@@ -16,7 +16,8 @@ import sys
 
 dnsRoute = Blueprint('dnsRoute', __name__)
 
-ip_list = []
+peers = ["'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time()",
+         "'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time() versao 2"]
 
 
 def generateKeys():
@@ -179,8 +180,8 @@ def hello():
         # String completa
         content = str(ciphertext)
 
-        ip_content = {'bitcoin_address': content, 'ip': jsonFormat, 'timestamp': datetime.time()}
-        ip_list.append(ip_content)
+        # ip_content = {'bitcoin_address': content, 'ip': jsonFormat, 'timestamp': datetime.time()}
+        # ip_list.append(ip_content)
 
         return jsonify({'ok': True, "message": format(content)}), 200
     except:
@@ -201,11 +202,11 @@ def dnsResolution(address):
 # TODO: METODO GET , Passas BITCOIN NODE ADDRESS E DEVOLVES IP , procurar no array, ver se existe, se sim, retornar, se nao, devolver que nao existe (not found)
 
 
-@dnsRoute.route('/dnsresolution/getpeerlist', methods=['GET'])
-def getPeerList():
-    if ip_list is not None:
+@dnsRoute.route('/peers', methods=['GET'])
+def peersList():
+    if peers is not None:
         try:
-            return jsonify({'ok': True, "message": ip_list}), 200
+            return jsonify({'ok': True, "message": list(peers)}), 200
         except TypeError:
             return jsonify({'ok': False, "message": 'List Not Found'}), 400
     else:

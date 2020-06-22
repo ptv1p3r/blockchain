@@ -22,19 +22,8 @@ def dns_hello():
 
     endpoint = dns_host + '/hello'
 
-    tt = ni.gateways()
-    tt2 = ni.gateways()['default'][ni.AF_INET][1]
-    tt3 = ni.ifaddresses(tt2)[ni.AF_INET][0]['addr']
-
-
-    for ifaces in ni.interfaces():
-        ipaddress = ni.ifaddresses(ifaces)
-        if ni.AF_INET in ipaddress:
-            ipaddress_desc = ipaddress[ni.AF_INET]
-            ipaddress_desc = ipaddress_desc[0]
-            if 'addr' in ipaddress_desc:
-                host_ip = ipaddress_desc['addr']
-                break
+    ifaces = ni.gateways()['default'][ni.AF_INET][1]
+    host_ip = ni.ifaddresses(ifaces)[ni.AF_INET][0]['addr']
 
     payload = {'ip': host_ip}
 

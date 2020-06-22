@@ -3,6 +3,7 @@ from flask import Flask, request
 from node_server import *
 import time
 from utils import *
+import socket
 
 app = Flask(__name__)
 
@@ -11,12 +12,16 @@ blockchain.generate_genesis_block()
 
 # host addresses of the p2p network
 peers = set()
-nodes = set()
+nodes = []
 
 # contact dns for bitcoin address
 bitcoin_node_address = dns_hello()
-if bitcoin_node_address is not None:
-    nodes.add(bitcoin_node_address)
+
+# get node list from dns
+nodes.append(dns_nodes_get())
+
+# if bitcoin_node_address is not None:
+#     nodes.add(bitcoin_node_address)
 
 
 @app.route("/")
@@ -179,5 +184,7 @@ def announce_new_block(block):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8000)
+    app.run(debug=True, port=6000)
+
+
 

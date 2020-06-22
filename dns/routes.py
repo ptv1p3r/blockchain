@@ -10,6 +10,8 @@ from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES, PKCS1_OAEP
 import json
 import base64
+import array as arr
+from datetime import datetime
 import sys
 
 dnsRoute = Blueprint('dnsRoute', __name__)
@@ -142,14 +144,20 @@ def decrypt():
 
 
 @dnsRoute.route('/hello', methods=['POST'])
-# TODO : Metodo Post, recebes IP e devolves o valor cifrado
+# TODO : array em que cada hello 200 que devolva o IP, colocar IP, Endereço e TimeStamp dentro do array. mas temos que verificar se já existe.
 def hello():
     try:
+        ip_list = []
         keysVerify()
         data = request.get_json()
-        required_fields = ["ip"]
-        jsonModel = data.get("ip")
+        required_fields = ['ip']
+        # for field in required_fields:
+        #     if not data.get(field):
+        #         return jsonify({'ok': False, 'message': 'Invalid transaction data'}), 400
+
+        jsonModel = data.get('ip')
         jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
+
         # Adiciona o 1° argumento a data
         data = jsonFormat
         # Verifica a chave publica
@@ -168,10 +176,20 @@ def hello():
         ciphertext = base64.b64encode(ciphertext)
         # String completa
         content = str(ciphertext)
+
+        ip_content = {'bitcoin_address': content, 'ip': jsonFormat, 'timestamp': datetime.time()}
+        ip_list.append(ip_content)
+
         return jsonify({'ok': True, "message": format(content)}), 200
     except:
         return jsonify({'ok': False, 'message': 'Something Failed'}), 400
 
 
+@dnsRoute.route('/dnsresolution/<str:id>', methods=['GET'])
+def dnsResolution(id):
+    try:
+        return jsonify({'ok': True, "message": id}), 200
+    except:
+        return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
 
-
+# TODO: METODO GET , Passas BITCOIN NODE ADDRESS E DEVOLVES IP , procurar no array, ver se existe, se sim, retornar, se nao, devolver que nao existe (not found)

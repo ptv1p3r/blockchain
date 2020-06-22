@@ -2,7 +2,7 @@ import json
 import socket
 import requests
 from config import *
-import os
+import netifaces as ni
 
 
 dns_url_header = 'http://'
@@ -13,6 +13,8 @@ def dns_hello():
     # connect to dns
     global dns_url_header
 
+    host_ip = None
+
     if DNS_IsSSL:
         dns_url_header = 'https://'
 
@@ -22,7 +24,14 @@ def dns_hello():
 
     host_name = socket.gethostname()
     # host_ip = socket.gethostbyname(host_name)
-    host_ip = get_lan_ip()
+    for ifaces in ni.interfaces():
+        ipaddress = ni.ifaddresses(ifaces)
+        if ni.AF_INET in ipaddress:
+            ipaddress_desc = ipaddress[ni.AF_INET]
+            ipaddress_desc = ipaddress_desc[0]
+            if 'addr' in ipaddress_desc:
+                host_ip = ipaddress_desc['addr']
+                break
 
     payload = {'ip': host_ip}
 
@@ -45,27 +54,4 @@ def dns_nodes_get():
     return response['message']
 
 
-if os.name != "nt":
-    import fcntl
-    import struct
-    def get_interface_ip(ifname):
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        return socket.inet_ntoa(fcntl.ioctl(
-                s.fileno(),
-                0x8915,  # SIOCGIFADDR
-                struct.pack('256s', bytes(ifname[:15], 'utf-8'))
-                # Python 2.7: remove the second argument for the bytes call
-            )[20:24])
 
-
-def get_lan_ip():
-    ip = socket.gethostbyname(socket.gethostname())
-    if ip.startswith("127.") and os.name != "nt":
-        interfaces = ["eth0","eth1","eth2","wlan0","wlan1","wifi0","ath0","ath1","ppp0"]
-        for ifname in interfaces:
-            try:
-                ip = get_interface_ip(ifname)
-                break
-            except IOError:
-                pass
-    return ip

@@ -240,10 +240,10 @@ def addressencrypt(ip):
     return signature
 
 
-@dnsRoute.route('/ttl/<ip>', methods=['GET'])
-def ttl(ip):
+@dnsRoute.route('/ttl/', methods=['GET'])
+def ttl():
     data = request.get_json()
-    ip = data.get('ip')
+    ip = config.PEER_HOST
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(5)
     try:

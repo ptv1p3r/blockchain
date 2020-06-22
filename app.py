@@ -1,11 +1,11 @@
 import datetime
-
 from flask import Flask, request
 import requests
 from config import *
 from node_server import *
 import time
 import json
+import socket
 
 dns_url_header = 'http://'
 dns_host = None
@@ -26,10 +26,13 @@ if DNS_IsSSL:
 
 dns_host = dns_url_header + DNS_HOST_IP + ':' + str(DNS_HOST_PORT)
 
-endpoint = dns_host + '/message/connectTest'
+endpoint = dns_host + '/hello'
 
-response = requests.get(endpoint).json()
-print(response)
+host_name = socket.gethostname()
+host_ip = socket.gethostbyname(host_name)
+
+payload = {'ip': host_ip}
+response = requests.post(endpoint, data=payload).json()
 
 
 @app.route("/")

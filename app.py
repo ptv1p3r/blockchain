@@ -1,16 +1,8 @@
 import datetime
 from flask import Flask, request
-import requests
-from config import *
 from node_server import *
 import time
-import json
-import socket
-
-dns_url_header = 'http://'
-dns_host = None
-response = None
-responseStatus = False
+from utils import *
 
 app = Flask(__name__)
 
@@ -20,23 +12,8 @@ blockchain.generate_genesis_block()
 # host addresses of the p2p network
 peers = set()
 
-# connect to dns
-if DNS_IsSSL:
-    dns_url_header = 'https://'
-
-dns_host = dns_url_header + DNS_HOST_IP + ':' + str(DNS_HOST_PORT)
-
-endpoint = dns_host + '/hello'
-
-host_name = socket.gethostname()
-host_ip = socket.gethostbyname(host_name)
-
-headers = {'content-type': 'application/json'}
-payload = {'ip': host_ip}
-
-response = requests.post(endpoint, data=json.dumps(payload), headers=headers).json()
-if not response.status_code == 400:
-    responseStatus = True
+# contact dns for bitcoin address
+bitcoin_address = dns_hello()
 
 
 @app.route("/")

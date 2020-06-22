@@ -23,6 +23,12 @@ peers = []
 
 
 
+def removePeer(bit_address):
+    for pear_index in peers:
+      pear = list(filter(lambda x: x['bitcoin_address'] == bit_address, peers))
+    del peers[pear]
+    print(peers)
+
 
 def generateKeys():
     # Define corretamente os caminhos onde as keys vão ser guardadas
@@ -180,6 +186,14 @@ def hello():
         return jsonify({'ok': False, 'message': 'Something Failed'}), 400
 
 
+@dnsRoute.route('/removePeer', methods=['POST'])
+def peerCheck():
+    data = request.get_json()
+    bitAddress = data.get('bitAddress')
+    pear = removePeer(bitAddress)
+    return jsonify({'ok': True, "message": format(pear)}), 200
+
+
 def addressencrypt(ip):
     # always remember to setup the network
     setup('mainnet')
@@ -232,14 +246,11 @@ def peersList():
             return jsonify({'ok': False, "message": 'List Not Found'}), 400
 
 
-
-
 @dnsRoute.route('/dnsresolution/<address>', methods=['GET'])
 def dnsResolution(address):
     try:
         return jsonify({'ok': True, "message": format(address)}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
-
 
 # TODO: METODO GET , Passas BITCOIN NODE ADDRESS E DEVOLVES IP , procurar no array, ver se existe, se sim, retornar, se nao, devolver que nao existe (not found)

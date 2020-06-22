@@ -404,7 +404,7 @@ def decrypt_text():
         data = str(data, 'utf-8')
         data = data.replace('"', "")
 
-        return jsonify({"content": data})
+        return jsonify({'ok': True, "message": data}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
 # TODO: string por get e devolver conteudo.

@@ -25,5 +25,5 @@ if __name__ == '__main__':
     if SERVER_MODE_DEV:
         app.run(host='0.0.0.0', port=SERVER_PORT, debug=True)
     else:
-        http_server = WSGIServer(('', SERVER_PORT), app)
+        http_server = WSGIServer(('0.0.0.0', SERVER_PORT), app)
         http_server.serve_forever()

@@ -221,6 +221,13 @@ def addressencrypt(ip):
 
     return signature
 
+@dnsRoute.route('/peers', methods=['GET'])
+def peersList():
+    if peers is not None:
+        try:
+            return jsonify({'ok': True, "message": list(peers)}), 200
+        except TypeError:
+            return jsonify({'ok': False, "message": 'List Not Found'}), 400
 
 
 @dnsRoute.route('/dnsresolution/<address>', methods=['GET'])

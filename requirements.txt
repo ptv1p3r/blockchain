@@ -1,0 +1,7 @@
+bitcoin-utils==0.4.7
+Flask==1.1.1
+gevent==1.4.0
+pycryptodome==3.9.6
+python-bitcoinrpc==1.0
+requests==2.22.0
+

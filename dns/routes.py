@@ -20,7 +20,7 @@ from bitcoinutils.keys import P2pkhAddress, PrivateKey, PublicKey
 dnsRoute = Blueprint('dnsRoute', __name__)
 
 peers = ["'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time()",
-         "'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time() versao 2"]
+         "'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time() versao 2 "]
 
 
 

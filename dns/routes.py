@@ -173,11 +173,9 @@ def hello():
 
         content = addressencrypt(data)
 
-        pear = {'bitcoin_address': content}
+        pear = {'bitcoin_address': content, 'ip': '127.0.0.1', 'timestamp': 'teste'}
         peers.append(pear)
-
         print(peers)
-
         return jsonify({'ok': True, "message": format(content)}), 200
     except:
         return jsonify({'ok': False, 'message': 'Something Failed'}), 400

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, make_response
 from Crypto.PublicKey import RSA
 
 import os.path
@@ -15,6 +15,8 @@ from datetime import datetime
 import sys
 
 dnsRoute = Blueprint('dnsRoute', __name__)
+
+ip_list = []
 
 
 def generateKeys():
@@ -147,7 +149,7 @@ def decrypt():
 # TODO : array em que cada hello 200 que devolva o IP, colocar IP, Endereço e TimeStamp dentro do array. mas temos que verificar se já existe.
 def hello():
     try:
-        ip_list = []
+
         keysVerify()
         data = request.get_json()
         required_fields = ['ip']
@@ -187,9 +189,24 @@ def hello():
 
 @dnsRoute.route('/dnsresolution/<address>', methods=['GET'])
 def dnsResolution(address):
-    try:
-        return jsonify({'ok': True, "message": '192.168.1.101'}), 200
-    except:
-        return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
+    if address is not None:
+        try:
+            return jsonify({'ok': True, "message": '192.168.1.101'}), 200
+        except TypeError:
+            return jsonify({'ok': False, "message": 'Missing parameters'}), 400
+    else:
+        return jsonify({'ok': False, 'message': 'BAD REQUEST'}), 400
+
 
 # TODO: METODO GET , Passas BITCOIN NODE ADDRESS E DEVOLVES IP , procurar no array, ver se existe, se sim, retornar, se nao, devolver que nao existe (not found)
+
+
+@dnsRoute.route('/dnsresolution/getpeerlist', methods=['GET'])
+def getPeerList():
+    if ip_list is not None:
+        try:
+            return jsonify({'ok': True, "message": ip_list}), 200
+        except TypeError:
+            return jsonify({'ok': False, "message": 'List Not Found'}), 400
+    else:
+        return jsonify({'ok': False, 'message': 'BAD REQUEST'}), 400

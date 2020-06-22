@@ -202,22 +202,22 @@ def addressencrypt(ip):
     address = pub.get_address()
 
     # print the address and hash160 - default is compressed address
-    print("Address:", address.to_string())
-    print("Hash160:", address.to_hash160())
+    # print("Address:", address.to_string())
+    # print("Hash160:", address.to_hash160())
 
-    print("\n--------------------------------------\n")
+    # print("\n--------------------------------------\n")
 
     # sign a message with the private key and verify it
     message = str(ip, 'utf-8')
     # message = "127.0.0.1:8000"
     signature = priv.sign_message(message)
-    print("The message to sign:", message)
-    print("The signature is:", signature)
+    # print("The message to sign:", message)
+    # print("The signature is:", signature)
 
-    if PublicKey.verify_message(address.to_string(), signature, message):
-        print("The signature is valid!")
-    else:
-        print("The signature is NOT valid!")
+    # if PublicKey.verify_message(address.to_string(), signature, message):
+    #     print("The signature is valid!")
+    # else:
+    #     print("The signature is NOT valid!")
 
     return signature
 

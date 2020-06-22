@@ -240,9 +240,9 @@ def hello():
         now = str(datetime.now())
 
         if next(filter(lambda x: x['ip'] == data, peers), None):
-            return {'message': "The ip: '{}' already exists.".format(data)}, 400
+            return {'message': None}, 400
         elif next(filter(lambda x: x['bitcoin_address'] == content, peers), None):
-            return {'message': "The address: '{}' already exists.".format(content)}, 400
+            return {'message': None}, 400
         else:
             pear = {'bitcoin_address': content, 'ip': data, 'timestamp': now}
             peers.append(pear)

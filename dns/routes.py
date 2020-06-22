@@ -19,8 +19,10 @@ from bitcoinutils.keys import P2pkhAddress, PrivateKey, PublicKey
 
 dnsRoute = Blueprint('dnsRoute', __name__)
 
-peers = ["'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time()",
-         "'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time() versao 2 "]
+# peers = ["'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time()",
+#          "'bitcoin_address': 'content'", "'ip': '192.168.1.101'", "'timestamp': datetime.time() versao 2"]
+
+peers = []
 
 
 
@@ -171,8 +173,10 @@ def hello():
 
         content = addressencrypt(data)
 
-        # ip_content = {'bitcoin_address': content, 'ip': jsonFormat, 'timestamp': datetime.time()}
-        # ip_list.append(ip_content)
+        pear = {'bitcoin_address': content}
+        peers.append(pear)
+
+        print(peers)
 
         return jsonify({'ok': True, "message": format(content)}), 200
     except:
@@ -221,6 +225,7 @@ def addressencrypt(ip):
 
     return signature
 
+
 @dnsRoute.route('/peers', methods=['GET'])
 def peersList():
     if peers is not None:
@@ -230,11 +235,14 @@ def peersList():
             return jsonify({'ok': False, "message": 'List Not Found'}), 400
 
 
+
+
 @dnsRoute.route('/dnsresolution/<address>', methods=['GET'])
 def dnsResolution(address):
     try:
         return jsonify({'ok': True, "message": format(address)}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
+
 
 # TODO: METODO GET , Passas BITCOIN NODE ADDRESS E DEVOLVES IP , procurar no array, ver se existe, se sim, retornar, se nao, devolver que nao existe (not found)

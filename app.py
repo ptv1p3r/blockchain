@@ -11,9 +11,12 @@ blockchain.generate_genesis_block()
 
 # host addresses of the p2p network
 peers = set()
+nodes = set()
 
 # contact dns for bitcoin address
-bitcoin_address = dns_hello()
+bitcoin_node_address = dns_hello()
+if bitcoin_node_address is not None:
+    nodes.add(bitcoin_node_address)
 
 
 @app.route("/")

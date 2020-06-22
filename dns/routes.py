@@ -362,7 +362,7 @@ def encrypt_text(encrypt):
             return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
 
 
-@dnsRoute.route('/data/decrypt', methods=['POST'])
+@dnsRoute.route('/data/decrypt', methods=['GET'])
 def decrypt_text():
     try:
         data = request.get_json()

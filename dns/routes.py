@@ -195,6 +195,7 @@ def translate_ip(address):
             return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
 
 
+# TODO: mais de 10 linhas é função
 @dnsRoute.route('/data/encrypt', methods=['GET'])
 def encrypt_text():
     try:

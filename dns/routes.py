@@ -27,9 +27,6 @@ dnsRoute = Blueprint('dnsRoute', __name__)
 peers = []
 
 
-# ip = "8.8.8.8"
-
-
 def removePeer(bit_address):
     global peers
     peers = list(filter(lambda x: x['bitcoin_address'] != bit_address, peers))
@@ -166,13 +163,10 @@ def decrypt():
 # TODO : array em que cada hello 200 que devolva o IP, colocar IP, Endereço e TimeStamp dentro do array. mas temos que verificar se já existe.
 def hello():
     try:
-        ip_list = []
         keysVerify()
         data = request.get_json()
-        required_fields = ['ip']
-        # for field in required_fields:
-        #     if not data.get(field):
-        #         return jsonify({'ok': False, 'message': 'Invalid transaction data'}), 400
+
+
 
         jsonModel = data.get('ip')
         jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
@@ -181,13 +175,21 @@ def hello():
         data = jsonFormat
         content = addressencrypt(data)
         data = str(data, 'utf-8')
+        data = data.replace('"', "")
         now = str(datetime.now())
 
-        pear = {'bitcoin_address': content, 'ip': data.replace('"', ""), 'timestamp': now}
-        peers.append(pear)
+        if next(filter(lambda x: x['ip'] == data, peers), None):
+            return {'message': "The ip: '{}' already exists.".format(data)}, 400
+        elif next(filter(lambda x: x['bitcoin_address'] == content, peers), None):
+            return {'message': "The address: '{}' already exists.".format(content)}, 400
+        else:
+            pear = {'bitcoin_address': content, 'ip': data, 'timestamp': now}
+            peers.append(pear)
+
         return jsonify({'ok': True, "message": format(content)}), 200
     except:
         return jsonify({'ok': False, 'message': 'Something Failed'}), 400
+
 
 
 @dnsRoute.route('/removePeer', methods=['POST'])

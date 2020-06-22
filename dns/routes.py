@@ -185,10 +185,10 @@ def hello():
         return jsonify({'ok': False, 'message': 'Something Failed'}), 400
 
 
-@dnsRoute.route('/dnsresolution/<str:id>', methods=['GET'])
-def dnsResolution(id):
+@dnsRoute.route('/dnsresolution/<address>', methods=['GET'])
+def dnsResolution(address):
     try:
-        return jsonify({'ok': True, "message": id}), 200
+        return jsonify({'ok': True, "message": format(address)}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
 

@@ -17,9 +17,12 @@ peers = set()
 nodes_ledger = []
 nodes = set()
 posts = []
+bitcoin_node_address = None
 
 
 def fetch_posts():
+    dns_url_header = 'http://'
+
     get_chain_address = "{}/chain".format(CONNECTED_NODE_ADDRESS)
     response = requests.get(get_chain_address)
     if response.status_code == 200:
@@ -29,6 +32,19 @@ def fetch_posts():
             for tx in block["transactions"]:
                 tx["index"] = block["index"]
                 tx["hash"] = block["previous_hash"]
+
+                if DNS_IsSSL:
+                    dns_url_header = 'https://'
+
+                dns_host = dns_url_header + DNS_HOST_IP + ':' + str(DNS_HOST_PORT)
+
+                endpoint = dns_host + '/data/decrypt'
+                payload = {'content': tx['content']}
+
+                response = requests.get(endpoint, data=json.dumps(payload), headers=headers).json()
+
+                tx['content'] = response['message']
+
                 content.append(tx)
 
         global posts
@@ -38,7 +54,12 @@ def fetch_posts():
 @app.route("/")
 def index():
     # contact dns for bitcoin address
-    bitcoin_node_address = dns_hello()
+    global bitcoin_node_address
+
+    response = dns_hello()
+
+    if response is not None:
+        bitcoin_node_address = response
 
     # get node list from dns
     nodes_ledger.append(dns_nodes_get())
@@ -55,12 +76,25 @@ def index():
 
 @app.route('/submit', methods=['POST'])
 def submit_textarea():
+    dns_url_header = 'http://'
+
     post_content = request.form["content"]
-    author = request.form["author"]
+    # author = request.form["author"]
+
+    if DNS_IsSSL:
+        dns_url_header = 'https://'
+
+    dns_host = dns_url_header + DNS_HOST_IP + ':' + str(DNS_HOST_PORT)
+
+    endpoint = dns_host + '/data/encrypt'
+    payload = {'content': post_content}
+
+    response = requests.get(endpoint, data=json.dumps(payload), headers=headers).json()
 
     post_object = {
-        'author': author,
-        'content': post_content,
+        # 'author': author,
+        'address': bitcoin_node_address,
+        'content': response['message'],
     }
 
     # Submit a transaction

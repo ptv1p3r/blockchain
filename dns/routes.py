@@ -87,6 +87,24 @@ def keysVerify():
         generateKeys()
 
 
+@dnsRoute.route('/iptoaddress/<ip>', methods=['GET'])
+def ipToAddress(ip):
+    try:
+        pear = next(filter(lambda x: x['ip'] == ip, peers), None)
+        return {'bitcoin_address': pear['bitcoin_address']}
+    except:
+        return {'message': 'Ip não corresponde a nenhum endereço'}
+
+
+@dnsRoute.route('/addresstoip/<address>', methods=['GET'])
+def addressToIp(address):
+    try:
+        pear = next(filter(lambda x: x['bitcoin_address'] == address, peers), None)
+        return {'ip': pear['ip']}
+    except:
+        return {'message': 'Endereço não corresponde a nenhum ip'}
+
+
 @dnsRoute.route('/message/encrypt', methods=['POST'])
 def encrypt():
     keysVerify()

@@ -13,6 +13,9 @@ import base64
 import array as arr
 from datetime import datetime
 import sys
+import socket
+import time
+import re
 
 from bitcoinutils.setup import setup
 from bitcoinutils.keys import P2pkhAddress, PrivateKey, PublicKey
@@ -20,14 +23,13 @@ from bitcoinutils.keys import P2pkhAddress, PrivateKey, PublicKey
 dnsRoute = Blueprint('dnsRoute', __name__)
 
 peers = []
-
+ip = "8.8.8.8"
+port = 443
 
 
 def removePeer(bit_address):
-    for pear_index in peers:
-      pear = list(filter(lambda x: x['bitcoin_address'] == bit_address, peers))
-    del peers[pear]
-    print(peers)
+    global peers
+    peers = list(filter(lambda x: x['bitcoin_address'] != bit_address, peers))
 
 
 def generateKeys():
@@ -235,6 +237,22 @@ def addressencrypt(ip):
     #     print("The signature is NOT valid!")
 
     return signature
+
+
+@dnsRoute.route('/ttl', methods=['GET'])
+def ttl():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(5)
+    ip, port = re.split(':', s)
+
+    try:
+        s.connect((ip, int(443)))
+        s.shutdown(socket.SHUT_RDWR)
+        return jsonify({'ok': True, "message": 'CONNECTED'}), 200
+    except:
+        return jsonify({'ok': False, "message": 'ERROR'}), 500
+    finally:
+        s.close()
 
 
 @dnsRoute.route('/peers', methods=['GET'])

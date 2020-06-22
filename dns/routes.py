@@ -314,52 +314,59 @@ def translate_ip(address):
             return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
 
 
-@dnsRoute.route('/data/encrypt/<encrypt>', methods=['GET'])
-def encrypt_text(encrypt):
-    if encrypt is not None:
-        try:
-            keysVerify()
-            data = encrypt
-            # Adiciona o 1° argumento ao conteudo do content do jsonModel
-            jsonModel = data
+@dnsRoute.route('/data/encrypt', methods=['GET'])
+def encrypt_text():
+    try:
+        keysVerify()
+        data = request.get_json()
+        required_fields = ["content"]
 
-            # Transforma o jsonModel em json e normaliza o texto para utf8
-            jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
+        for field in required_fields:
+            if not data.get(field):
+                return "Invalid transaction data", 404
 
-            # Adiciona o 1° argumento a data
-            data = jsonFormat
+        data = data.get("content")
 
-            # Verifica a chave publica
-            recipient_key = RSA.import_key(open("keys/receiver.pem").read())
-            session_key = get_random_bytes(16)
+        # Adiciona o 1° argumento ao conteudo do content do jsonModel
+        jsonModel = data
 
-            # Encripta a chave de sessão com a chave RSA public
-            cipher_rsa = PKCS1_OAEP.new(recipient_key)
-            enc_session_key = cipher_rsa.encrypt(session_key)
+        # Transforma o jsonModel em json e normaliza o texto para utf8
+        jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
 
-            # Encripta os dados com a chave de sessão AES
-            cipher_aes = AES.new(session_key, AES.MODE_EAX)
-            ciphertext, tag = cipher_aes.encrypt_and_digest(data)
+        # Adiciona o 1° argumento a data
+        data = jsonFormat
 
-            # Encode em base64
-            enc_session_key = base64.b64encode(enc_session_key)
-            cipher_aes = base64.b64encode(cipher_aes.nonce)
-            tag = base64.b64encode(tag)
-            ciphertext = base64.b64encode(ciphertext)
+        # Verifica a chave publica
+        recipient_key = RSA.import_key(open("keys/receiver.pem").read())
+        session_key = get_random_bytes(16)
 
-            # Decode da chave para ir apenas o conteudo
-            enc_session_key = enc_session_key.decode("utf-8")
-            cipher_aes = cipher_aes.decode("utf-8")
-            tag = tag.decode("utf-8")
-            ciphertext = ciphertext.decode("utf-8")
+        # Encripta a chave de sessão com a chave RSA public
+        cipher_rsa = PKCS1_OAEP.new(recipient_key)
+        enc_session_key = cipher_rsa.encrypt(session_key)
 
-            # String completa
-            content = str(enc_session_key), str(cipher_aes), str(tag), str(ciphertext)
-            s = ','
-            msg = format(s.join(content))
-            return jsonify({'ok': True, "message": msg}), 200
-        except:
-            return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
+        # Encripta os dados com a chave de sessão AES
+        cipher_aes = AES.new(session_key, AES.MODE_EAX)
+        ciphertext, tag = cipher_aes.encrypt_and_digest(data)
+
+        # Encode em base64
+        enc_session_key = base64.b64encode(enc_session_key)
+        cipher_aes = base64.b64encode(cipher_aes.nonce)
+        tag = base64.b64encode(tag)
+        ciphertext = base64.b64encode(ciphertext)
+
+        # Decode da chave para ir apenas o conteudo
+        enc_session_key = enc_session_key.decode("utf-8")
+        cipher_aes = cipher_aes.decode("utf-8")
+        tag = tag.decode("utf-8")
+        ciphertext = ciphertext.decode("utf-8")
+
+        # String completa
+        content = str(enc_session_key), str(cipher_aes), str(tag), str(ciphertext)
+        s = ','
+        msg = format(s.join(content))
+        return jsonify({'ok': True, "message": msg}), 200
+    except:
+        return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
 
 
 @dnsRoute.route('/data/decrypt', methods=['GET'])

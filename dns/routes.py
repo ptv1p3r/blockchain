@@ -3,6 +3,7 @@ from Crypto.PublicKey import RSA
 
 import os.path
 from os import path
+import config
 
 from flask import request
 from Crypto.PublicKey import RSA
@@ -23,8 +24,8 @@ from bitcoinutils.keys import P2pkhAddress, PrivateKey, PublicKey
 dnsRoute = Blueprint('dnsRoute', __name__)
 
 peers = []
-ip = "8.8.8.8"
-port = 443
+# ip = "8.8.8.8"
+
 
 
 def removePeer(bit_address):
@@ -239,14 +240,14 @@ def addressencrypt(ip):
     return signature
 
 
-@dnsRoute.route('/ttl', methods=['GET'])
-def ttl():
+@dnsRoute.route('/ttl/<ip>', methods=['GET'])
+def ttl(ip):
+    data = request.get_json()
+    ip = data.get('ip')
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(5)
-    ip, port = re.split(':', s)
-
     try:
-        s.connect((ip, int(443)))
+        s.connect((ip, int(config.PEER_PORT)))
         s.shutdown(socket.SHUT_RDWR)
         return jsonify({'ok': True, "message": 'CONNECTED'}), 200
     except:

@@ -1,5 +1,6 @@
 import os
 # api settings
+PEER_PORT = 5000
 SERVER_MODE_DEV = True
 SERVER_PORT = 5000
 SERVER_HOST = '127.0.0.1'

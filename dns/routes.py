@@ -17,6 +17,7 @@ import os.path
 import sched, time
 import array as arr
 import sys
+from threading import Timer
 
 
 dnsRoute = Blueprint('dnsRoute', __name__)
@@ -24,15 +25,16 @@ dnsRoute = Blueprint('dnsRoute', __name__)
 peers = []
 
 
-def ttl_testing():
-    try:
-        for element in peers:
-            ip = element['ip']
-            ttl(ip)
+def ttl_teste():
+    global peers
+    for element in peers:
+        ip = element['ip']
+        ttl(ip)
 
-        return jsonify({'ok': True, "message": 'ok'}), 200
-    except:
-        return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
+    Timer(5, ttl_teste).start()
+
+
+
 
 
 def ttl(ip):

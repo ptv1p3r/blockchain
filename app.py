@@ -13,7 +13,6 @@ blockchain.generate_genesis_block()
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:5000"
 
 # host addresses of the p2p network
-# peers = set()
 nodes_ledger = []
 nodes = set()
 posts = []
@@ -159,43 +158,6 @@ def verify_and_add_block():
     return "Block added to the chain", 201
 
 
-# Endpoint para adicionar novos peers à rede
-# @app.route('/node/register', methods=['POST'])
-# def register_new_peers():
-#     node_address = request.get_json()["node_address"]
-#     if not node_address:
-#         return "Invalid data", 400
-#
-#     peers.add(node_address)
-#
-#     return get_chain()
-
-
-# endpoint para registo de novo nó
-# @app.route('/register', methods=['POST'])
-# def register_with_existing_node():
-#     node_address = request.get_json()["node_address"]
-#     if not node_address:
-#         return "Invalid data", 400
-#
-#     data = {"node_address": request.host_url}
-#     headers = {'Content-Type': "application/json"}
-#
-#     # faz um pedido para registo com no remoto e extrai informação
-#     response = requests.post(node_address + "/node/register", data=json.dumps(data), headers=headers)
-#
-#     if response.status_code == 200:
-#         global blockchain
-#         global peers
-#         # actualiza chain e peers
-#         chain_dump = response.json()['chain']
-#         blockchain = create_chain_from_dump(chain_dump)
-#         peers.update(response.json()['peers'])
-#         return "Registration successful", 200
-#     else:
-#         return response.content, response.status_code
-
-
 def create_chain_from_dump(chain_dump):
     generated_blockchain = Blockchain()
     generated_blockchain.generate_genesis_block()
@@ -264,14 +226,6 @@ def consensus():
             current_len = length
             longest_chain = chain
 
-    # for node in peers:
-    #     response = requests.get('{}chain'.format(node))
-    #     length = response.json()['length']
-    #     chain = response.json()['chain']
-    #     if length > current_len and blockchain.check_chain_validity(chain):
-    #         current_len = length
-    #         longest_chain = chain
-
     if longest_chain:
         blockchain = longest_chain
         return True
@@ -285,11 +239,6 @@ def announce_new_block(block):
         url = "http://{}:5000/block/add".format(_node['ip'])
         headers = {'Content-Type': "application/json"}
         requests.post(url, data=json.dumps(block.__dict__, sort_keys=True), headers=headers)
-
-    # for peer in peers:
-    #     url = "{}block/add".format(peer)
-    #     headers = {'Content-Type': "application/json"}
-    #     requests.post(url, data=json.dumps(block.__dict__, sort_keys=True), headers=headers)
 
 
 # encerra node e remove do dns

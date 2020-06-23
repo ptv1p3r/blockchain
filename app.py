@@ -210,6 +210,7 @@ def fetch_posts():
         global posts
         posts = sorted(content, key=lambda k: k['timestamp'], reverse=True)
 
+
 # define o consensu na rede para a blockchain
 def consensus():
     # se uma chain maior for encontrada é alterada

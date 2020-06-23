@@ -56,15 +56,16 @@ def index():
     global bitcoin_node_address
     global blockchain
 
-    response = dns_hello()
+    response_hello = dns_hello()
 
-    if response is not None:
+    if response_hello is not None:
+        bitcoin_node_address = response_hello
         nodes_ledger.append(dns_nodes_get())
         # actualiza chain e peers
         response = json.loads(get_chain())
         chain_dump = response['chain']
         blockchain = create_chain_from_dump(chain_dump)
-        bitcoin_node_address = response
+
 
     # get node list from dns
     nodes_ledger.clear()
@@ -84,7 +85,6 @@ def submit_textarea():
     dns_url_header = 'http://'
 
     post_content = request.form["content"]
-    # author = request.form["author"]
 
     if DNS_IsSSL:
         dns_url_header = 'https://'
@@ -97,7 +97,6 @@ def submit_textarea():
     response = requests.get(endpoint, data=json.dumps(payload), headers=headers).json()
 
     post_object = {
-        # 'author': author,
         'address': bitcoin_node_address,
         'content': response['message'],
     }
@@ -120,7 +119,7 @@ def timestamp_to_string(epoch_time):
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
     tx_data = request.get_json()
-    required_fields = ["content"]
+    required_fields = ["address", "content"]
 
     for field in required_fields:
         if not tx_data.get(field):
@@ -252,13 +251,21 @@ def consensus():
     longest_chain = None
     current_len = len(blockchain.chain)
 
-    for node in peers:
-        response = requests.get('{}chain'.format(node))
+    for _node in nodes_ledger[0]:
+        response = requests.get('http://{}:5000/chain'.format(_node['ip']))
         length = response.json()['length']
         chain = response.json()['chain']
         if length > current_len and blockchain.check_chain_validity(chain):
             current_len = length
             longest_chain = chain
+
+    # for node in peers:
+    #     response = requests.get('{}chain'.format(node))
+    #     length = response.json()['length']
+    #     chain = response.json()['chain']
+    #     if length > current_len and blockchain.check_chain_validity(chain):
+    #         current_len = length
+    #         longest_chain = chain
 
     if longest_chain:
         blockchain = longest_chain
@@ -274,10 +281,10 @@ def announce_new_block(block):
         headers = {'Content-Type': "application/json"}
         requests.post(url, data=json.dumps(block.__dict__, sort_keys=True), headers=headers)
 
-    for peer in peers:
-        url = "{}block/add".format(peer)
-        headers = {'Content-Type': "application/json"}
-        requests.post(url, data=json.dumps(block.__dict__, sort_keys=True), headers=headers)
+    # for peer in peers:
+    #     url = "{}block/add".format(peer)
+    #     headers = {'Content-Type': "application/json"}
+    #     requests.post(url, data=json.dumps(block.__dict__, sort_keys=True), headers=headers)
 
 
 if __name__ == '__main__':

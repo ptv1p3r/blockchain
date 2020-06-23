@@ -1,30 +1,76 @@
-from flask import Blueprint, jsonify
 from Crypto.PublicKey import RSA
-
-import os.path
+from flask import Blueprint, jsonify
 from os import path
-
+from bitcoinutils.setup import setup
+from bitcoinutils.keys import P2pkhAddress, PrivateKey, PublicKey
+from dns.config import *
 from flask import request
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES, PKCS1_OAEP
+from datetime import datetime
 import json
 import base64
-import array as arr
-from datetime import datetime
-import sys
 import socket
+import os.path
 import time
-import re
-
-from bitcoinutils.setup import setup
-from bitcoinutils.keys import P2pkhAddress, PrivateKey, PublicKey
-
-from dns.config import *
+import array as arr
+import sys
 
 dnsRoute = Blueprint('dnsRoute', __name__)
 
 peers = []
+
+
+def content_encrypt(data):
+    # Verifica a chave publica
+    recipient_key = RSA.import_key(open("keys/receiver.pem").read())
+    session_key = get_random_bytes(16)
+    # Encripta a chave de sessão com a chave RSA public
+    cipher_rsa = PKCS1_OAEP.new(recipient_key)
+    enc_session_key = cipher_rsa.encrypt(session_key)
+    # Encripta os dados com a chave de sessão AES
+    cipher_aes = AES.new(session_key, AES.MODE_EAX)
+    ciphertext, tag = cipher_aes.encrypt_and_digest(data)
+    # Encode em base64
+    enc_session_key = base64.b64encode(enc_session_key)
+    cipher_aes = base64.b64encode(cipher_aes.nonce)
+    tag = base64.b64encode(tag)
+    ciphertext = base64.b64encode(ciphertext)
+
+    # Decode da chave para ir apenas o conteudo
+    enc_session_key = enc_session_key.decode("utf-8")
+    cipher_aes = cipher_aes.decode("utf-8")
+    tag = tag.decode("utf-8")
+    ciphertext = ciphertext.decode("utf-8")
+
+    # String completa
+    content = str(enc_session_key), str(cipher_aes), str(tag), str(ciphertext)
+    s = ','
+    msg = format(s.join(content))
+    return msg
+
+
+def content_decrypt(data):
+    # importa a chave privada
+    private_key = RSA.import_key(open("keys/private.pem").read())
+
+    # Separação dos dados recebidos
+    enc_session_key, nonce, tag, ciphertext = data.split(',')
+    enc_session_key = base64.b64decode(enc_session_key.encode("utf-8"))
+    nonce = base64.b64decode(nonce.encode("utf-8"))
+    tag = base64.b64decode(tag.encode("utf-8"))
+    ciphertext = base64.b64decode(ciphertext.encode("utf-8"))
+    # Desencripta a chave de sessão com a chave privada RSA
+    cipher_rsa = PKCS1_OAEP.new(private_key)
+    session_key = cipher_rsa.decrypt(enc_session_key)
+    # Desencripta os dados com a chave de sessão AES
+    cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
+    data = cipher_aes.decrypt_and_verify(ciphertext, tag)
+    # Formatação do output
+    data = str(data, 'utf-8')
+    data = data.replace('"', "")
+    return data
 
 
 def addressencrypt(ip):
@@ -34,9 +80,6 @@ def addressencrypt(ip):
     priv = PrivateKey(secret_exponent=1)
     # get the public key
     pub = priv.get_public_key()
-    # get address from public key
-    # address = pub.get_address()
-    # sign a message with the private key and verify it
     message = str(ip)
     signature = priv.sign_message(message)
     return signature
@@ -70,14 +113,12 @@ def generateKeys():
     keysPath = os.path.join(app_root, 'keys')
     privateKeyPath = os.path.join(keysPath, 'private.pem')
     publicKeyPath = os.path.join(keysPath, 'receiver.pem')
-
     key = RSA.generate(2048)
     # Gera uma chave privada e armazena no ficheiro "private.pem"
     private_key = key.export_key()
     file_out = open(privateKeyPath, "wb")
     file_out.write(private_key)
     file_out.close()
-
     # Gera uma chave publica e armazena no ficheiro "reciever.pem"
     public_key = key.publickey().export_key()
     file_out = open(publicKeyPath, "wb")
@@ -97,8 +138,6 @@ def keysVerify():
         os.makedirs(keysPath)
 
     # verifica se as chaves existem
-    # se existir apenas uma key em falta ele repoem e substitui
-    # se a outra existir ele substitui para prevenir que alguma key existente esteja corrompida
     if not path.exists(privateKeyPath) or not path.exists(publicKeyPath):
         generateKeys()
 
@@ -202,50 +241,18 @@ def encrypt_text():
         keysVerify()
         data = request.get_json()
         required_fields = ["content"]
-
         for field in required_fields:
             if not data.get(field):
                 return "Invalid transaction data", 404
 
         data = data.get("content")
-
         # Adiciona o 1° argumento ao conteudo do content do jsonModel
         jsonModel = data
-
         # Transforma o jsonModel em json e normaliza o texto para utf8
         jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
-
         # Adiciona o 1° argumento a data
         data = jsonFormat
-
-        # Verifica a chave publica
-        recipient_key = RSA.import_key(open("keys/receiver.pem").read())
-        session_key = get_random_bytes(16)
-
-        # Encripta a chave de sessão com a chave RSA public
-        cipher_rsa = PKCS1_OAEP.new(recipient_key)
-        enc_session_key = cipher_rsa.encrypt(session_key)
-
-        # Encripta os dados com a chave de sessão AES
-        cipher_aes = AES.new(session_key, AES.MODE_EAX)
-        ciphertext, tag = cipher_aes.encrypt_and_digest(data)
-
-        # Encode em base64
-        enc_session_key = base64.b64encode(enc_session_key)
-        cipher_aes = base64.b64encode(cipher_aes.nonce)
-        tag = base64.b64encode(tag)
-        ciphertext = base64.b64encode(ciphertext)
-
-        # Decode da chave para ir apenas o conteudo
-        enc_session_key = enc_session_key.decode("utf-8")
-        cipher_aes = cipher_aes.decode("utf-8")
-        tag = tag.decode("utf-8")
-        ciphertext = ciphertext.decode("utf-8")
-
-        # String completa
-        content = str(enc_session_key), str(cipher_aes), str(tag), str(ciphertext)
-        s = ','
-        msg = format(s.join(content))
+        msg = content_encrypt(data)
         return jsonify({'ok': True, "message": msg}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
@@ -262,30 +269,7 @@ def decrypt_text():
                 return "Invalid transaction data", 404
 
         data = data.get("content")
-
-        # importa a chave privada
-        private_key = RSA.import_key(open("keys/private.pem").read())
-
-        # Separação dos dados recebidos
-        enc_session_key, nonce, tag, ciphertext = data.split(',')
-
-        enc_session_key = base64.b64decode(enc_session_key.encode("utf-8"))
-        nonce = base64.b64decode(nonce.encode("utf-8"))
-        tag = base64.b64decode(tag.encode("utf-8"))
-        ciphertext = base64.b64decode(ciphertext.encode("utf-8"))
-
-        # Desencripta a chave de sessão com a chave privada RSA
-        cipher_rsa = PKCS1_OAEP.new(private_key)
-        session_key = cipher_rsa.decrypt(enc_session_key)
-
-        # Desencripta os dados com a chave de sessão AES
-        cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
-        data = cipher_aes.decrypt_and_verify(ciphertext, tag)
-
-        # Formatação do output
-        data = str(data, 'utf-8')
-        data = data.replace('"', "")
-
-        return jsonify({'ok': True, "message": data}), 200
+        msg = content_decrypt(data)
+        return jsonify({'ok': True, "message": msg}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404

@@ -18,14 +18,22 @@ import sched, time
 import array as arr
 import sys
 
+
 dnsRoute = Blueprint('dnsRoute', __name__)
 
 peers = []
-scheduler = sched.scheduler(time.time(), time.sleep(TTL_TIME))
 
 
-# def ttl_remove_peer():
-#     scheduler.enter(TTL_TIME, 1, ttl(ip) )
+def ttl_testing():
+    try:
+        for element in peers:
+            ip = element['ip']
+            ttl(ip)
+
+        return jsonify({'ok': True, "message": 'ok'}), 200
+    except:
+        return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
+
 
 def ttl(ip):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -34,7 +42,6 @@ def ttl(ip):
         try:
             if s.connect((ip, int(PEER_PORT))):
                 s.shutdown(socket.SHUT_RDWR)
-
 
             header = 'http://'
             host = header + ip + ':' + str(PEER_PORT)
@@ -47,9 +54,9 @@ def ttl(ip):
 
                 # s.shutdown(socket.SHUT_RDWR)
 
-
             # return jsonify({'ok': True, "message": 'CONNECTED'}), 200
         except:
+            removePeer_ip(ip)
             return jsonify({'ok': False, "message": 'ERROR'}), 500
         finally:
             s.close()
@@ -288,6 +295,7 @@ def decrypt_text():
 
         data = data.get("content")
         msg = content_decrypt(data)
+
         return jsonify({'ok': True, "message": msg}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
@@ -299,6 +307,10 @@ def ttl_testing():
         for element in peers:
             ip = element['ip']
             ttl(ip)
+
         return jsonify({'ok': True, "message": 'ok'}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
+
+
+

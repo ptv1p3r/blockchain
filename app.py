@@ -106,6 +106,7 @@ def new_transaction():
 def get_chain():
     chain_data = []
 
+    nodes.clear()
     for _node in nodes_ledger[0]:
         nodes.add(_node['bitcoin_address'])
 

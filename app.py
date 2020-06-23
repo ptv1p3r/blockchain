@@ -3,7 +3,7 @@ from flask import Flask, request, render_template, redirect
 from node_server import *
 import time
 from utils import *
-import socket
+from gevent.pywsgi import WSGIServer
 
 app = Flask(__name__)
 
@@ -60,6 +60,7 @@ def index():
     response = dns_hello()
 
     if response is not None:
+        nodes_ledger.append(dns_nodes_get())
         # actualiza chain e peers
         response = json.loads(get_chain())
         chain_dump = response['chain']
@@ -269,8 +270,8 @@ def consensus():
 
 # anuncia os novos blocos na rede
 def announce_new_block(block):
-    for _node in nodes:
-        url = "{}block/add".format(_node)
+    for _node in nodes_ledger[0]:
+        url = "{}:5000/block/add".format(_node['ip'])
         headers = {'Content-Type': "application/json"}
         requests.post(url, data=json.dumps(block.__dict__, sort_keys=True), headers=headers)
 
@@ -281,7 +282,9 @@ def announce_new_block(block):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
+
 
 
 

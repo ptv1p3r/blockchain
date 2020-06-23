@@ -3,6 +3,7 @@ from flask import Flask, request, render_template, redirect
 from node_server import *
 import time
 from utils import *
+import atexit
 
 app = Flask(__name__)
 
@@ -289,6 +290,25 @@ def announce_new_block(block):
     #     headers = {'Content-Type': "application/json"}
     #     requests.post(url, data=json.dumps(block.__dict__, sort_keys=True), headers=headers)
 
+
+# encerra node e remove do dns
+def node_close():
+    dns_url_header = 'http://'
+
+    if DNS_IsSSL:
+        dns_url_header = 'https://'
+
+    dns_host = dns_url_header + DNS_HOST_IP + ':' + str(DNS_HOST_PORT)
+
+    endpoint = dns_host + '/removePeer'
+
+    payload = {'Address': bitcoin_node_address}
+
+    response = requests.post(endpoint, data=json.dumps(payload), headers=headers).json()
+
+
+# Register the function to be called on exit
+atexit.register(node_close)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

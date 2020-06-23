@@ -9,6 +9,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES, PKCS1_OAEP
 from datetime import datetime
+import requests
 import json
 import base64
 import socket
@@ -33,8 +34,20 @@ def ttl(ip):
         try:
             if s.connect((ip, int(PEER_PORT))):
                 s.shutdown(socket.SHUT_RDWR)
-            else:
-                removePeer_ip(ip, peers)
+
+
+            header = 'http://'
+            host = header + ip + ':' + str(PEER_PORT)
+            endpoint = host + '/alive'
+
+            response = requests.get(endpoint)
+
+            if response.status_code != 201:
+                removePeer_ip(ip)
+
+                # s.shutdown(socket.SHUT_RDWR)
+
+
             # return jsonify({'ok': True, "message": 'CONNECTED'}), 200
         except:
             return jsonify({'ok': False, "message": 'ERROR'}), 500
@@ -126,8 +139,9 @@ def removePeer(bit_address):
 
 # TODO: FILTRO MAL CONSTRUIDO? USAR POP / DEL
 
-def removePeer_ip(ip, peers):
-    del peers[list(filter(lambda x: x['ip'] == ip, peers))]
+def removePeer_ip(ip):
+    global peers
+    peers = list(filter(lambda x: x['ip'] != ip, peers))
 
 
 def generateKeys():

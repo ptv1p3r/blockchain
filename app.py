@@ -12,42 +12,11 @@ blockchain.generate_genesis_block()
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:5000"
 
 # host addresses of the p2p network
-peers = set()
+# peers = set()
 nodes_ledger = []
 nodes = set()
 posts = []
 bitcoin_node_address = None
-
-
-def fetch_posts():
-    dns_url_header = 'http://'
-
-    get_chain_address = "{}/chain".format(CONNECTED_NODE_ADDRESS)
-    response = requests.get(get_chain_address)
-    if response.status_code == 200:
-        content = []
-        chain = json.loads(response.content)
-        for block in chain["chain"]:
-            for tx in block["transactions"]:
-                tx["index"] = block["index"]
-                tx["hash"] = block["previous_hash"]
-
-                if DNS_IsSSL:
-                    dns_url_header = 'https://'
-
-                dns_host = dns_url_header + DNS_HOST_IP + ':' + str(DNS_HOST_PORT)
-
-                endpoint = dns_host + '/data/decrypt'
-                payload = {'content': tx['content']}
-
-                response = requests.get(endpoint, data=json.dumps(payload), headers=headers).json()
-
-                tx['content'] = response['message']
-
-                content.append(tx)
-
-        global posts
-        posts = sorted(content, key=lambda k: k['timestamp'], reverse=True)
 
 
 @app.route("/")
@@ -65,7 +34,6 @@ def index():
         response = json.loads(get_chain())
         chain_dump = response['chain']
         blockchain = create_chain_from_dump(chain_dump)
-
 
     # get node list from dns
     nodes_ledger.clear()
@@ -111,10 +79,6 @@ def submit_textarea():
     return redirect('/')
 
 
-def timestamp_to_string(epoch_time):
-    return datetime.datetime.fromtimestamp(epoch_time).strftime('%H:%M')
-
-
 # endpoint para novas transactions(data)
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
@@ -144,7 +108,7 @@ def get_chain():
         chain_data.append(block.__dict__)
     return json.dumps({"length": len(chain_data),
                        "chain": chain_data,
-                       "peers": list(peers),
+                       # "peers": list(peers),
                        "nodes": list(nodes)})
 
 
@@ -190,40 +154,40 @@ def verify_and_add_block():
 
 
 # Endpoint para adicionar novos peers à rede
-@app.route('/node/register', methods=['POST'])
-def register_new_peers():
-    node_address = request.get_json()["node_address"]
-    if not node_address:
-        return "Invalid data", 400
-
-    peers.add(node_address)
-
-    return get_chain()
+# @app.route('/node/register', methods=['POST'])
+# def register_new_peers():
+#     node_address = request.get_json()["node_address"]
+#     if not node_address:
+#         return "Invalid data", 400
+#
+#     peers.add(node_address)
+#
+#     return get_chain()
 
 
 # endpoint para registo de novo nó
-@app.route('/register', methods=['POST'])
-def register_with_existing_node():
-    node_address = request.get_json()["node_address"]
-    if not node_address:
-        return "Invalid data", 400
-
-    data = {"node_address": request.host_url}
-    headers = {'Content-Type': "application/json"}
-
-    # faz um pedido para registo com no remoto e extrai informação
-    response = requests.post(node_address + "/node/register", data=json.dumps(data), headers=headers)
-
-    if response.status_code == 200:
-        global blockchain
-        global peers
-        # actualiza chain e peers
-        chain_dump = response.json()['chain']
-        blockchain = create_chain_from_dump(chain_dump)
-        peers.update(response.json()['peers'])
-        return "Registration successful", 200
-    else:
-        return response.content, response.status_code
+# @app.route('/register', methods=['POST'])
+# def register_with_existing_node():
+#     node_address = request.get_json()["node_address"]
+#     if not node_address:
+#         return "Invalid data", 400
+#
+#     data = {"node_address": request.host_url}
+#     headers = {'Content-Type': "application/json"}
+#
+#     # faz um pedido para registo com no remoto e extrai informação
+#     response = requests.post(node_address + "/node/register", data=json.dumps(data), headers=headers)
+#
+#     if response.status_code == 200:
+#         global blockchain
+#         global peers
+#         # actualiza chain e peers
+#         chain_dump = response.json()['chain']
+#         blockchain = create_chain_from_dump(chain_dump)
+#         peers.update(response.json()['peers'])
+#         return "Registration successful", 200
+#     else:
+#         return response.content, response.status_code
 
 
 def create_chain_from_dump(chain_dump):
@@ -242,6 +206,41 @@ def create_chain_from_dump(chain_dump):
         if not added:
             raise Exception("The chain is tampered!!")
     return generated_blockchain
+
+
+def timestamp_to_string(epoch_time):
+    return datetime.datetime.fromtimestamp(epoch_time).strftime('%H:%M')
+
+
+def fetch_posts():
+    dns_url_header = 'http://'
+
+    get_chain_address = "{}/chain".format(CONNECTED_NODE_ADDRESS)
+    response = requests.get(get_chain_address)
+    if response.status_code == 200:
+        content = []
+        chain = json.loads(response.content)
+        for block in chain["chain"]:
+            for tx in block["transactions"]:
+                tx["index"] = block["index"]
+                tx["hash"] = block["previous_hash"]
+
+                if DNS_IsSSL:
+                    dns_url_header = 'https://'
+
+                dns_host = dns_url_header + DNS_HOST_IP + ':' + str(DNS_HOST_PORT)
+
+                endpoint = dns_host + '/data/decrypt'
+                payload = {'content': tx['content']}
+
+                response = requests.get(endpoint, data=json.dumps(payload), headers=headers).json()
+
+                tx['content'] = response['message']
+
+                content.append(tx)
+
+        global posts
+        posts = sorted(content, key=lambda k: k['timestamp'], reverse=True)
 
 
 def consensus():

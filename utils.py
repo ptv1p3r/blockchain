@@ -28,7 +28,7 @@ def dns_hello():
     payload = {'ip': host_ip}
 
     response = requests.post(endpoint, data=json.dumps(payload), headers=headers).json()
-    return response['message']
+    return response
 
 
 def dns_nodes_get():

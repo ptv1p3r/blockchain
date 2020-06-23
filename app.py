@@ -21,14 +21,13 @@ bitcoin_node_address = None
 
 @app.route("/")
 def index():
-    # contact dns for bitcoin address
     global bitcoin_node_address
     global blockchain
 
-    response_hello = dns_hello()
+    response_hello = dns_hello()  # send hello to dns register and get bitcoin address
+    bitcoin_node_address = response_hello['message']
 
-    if response_hello is not None:
-        bitcoin_node_address = response_hello
+    if response_hello['ok'] == 'True':
         nodes_ledger.append(dns_nodes_get())
         # actualiza chain e peers
         response = json.loads(get_chain())
@@ -77,6 +76,11 @@ def submit_textarea():
                   headers={'Content-type': 'application/json'})
 
     return redirect('/')
+
+
+@app.route('/alive', methods=['GET'])
+def alive():
+    return "Success", 201
 
 
 # endpoint para novas transactions(data)

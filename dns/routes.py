@@ -31,7 +31,7 @@ def ttl_teste():
         ip = element['ip']
         ttl(ip)
 
-    Timer(5, ttl_teste).start()
+    Timer(10, ttl_teste).start()
 
 
 
@@ -59,7 +59,7 @@ def ttl(ip):
             # return jsonify({'ok': True, "message": 'CONNECTED'}), 200
         except:
             removePeer_ip(ip)
-            return jsonify({'ok': False, "message": 'ERROR'}), 500
+            # return jsonify({'ok': False, "message": 'ERROR'}), 500
         finally:
             s.close()
 

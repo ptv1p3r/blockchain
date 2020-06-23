@@ -31,10 +31,10 @@ def ttl(ip):
     s.settimeout(5)
     if ip is not None:
         try:
-            if (s.connect((ip, int(PEER_PORT)))) is True:
+            if s.connect((ip, int(PEER_PORT))):
                 s.shutdown(socket.SHUT_RDWR)
             else:
-                peers = removePeer_ip(ip)
+                removePeer_ip(ip, peers)
             # return jsonify({'ok': True, "message": 'CONNECTED'}), 200
         except:
             return jsonify({'ok': False, "message": 'ERROR'}), 500
@@ -123,12 +123,11 @@ def removePeer(bit_address):
     peers = list(filter(lambda x: x['bitcoin_address'] != bit_address, peers))
     return peers
 
-#TODO: FILTRO MAL CONSTRUIDO? USAR POP / DEL
 
-def removePeer_ip(ip):
-    global peers
-    peers = list(filter(lambda x: x['ip'] != ip, peers))
-    return peers
+# TODO: FILTRO MAL CONSTRUIDO? USAR POP / DEL
+
+def removePeer_ip(ip, peers):
+    del peers[list(filter(lambda x: x['ip'] == ip, peers))]
 
 
 def generateKeys():
@@ -282,6 +281,6 @@ def ttl_testing():
         for element in peers:
             ip = element['ip']
             ttl(ip)
-        return jsonify({'ok': True, "message": peers}), 200
+        return jsonify({'ok': True, "message": 'ok'}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404

@@ -13,13 +13,33 @@ import json
 import base64
 import socket
 import os.path
-import time
+import sched, time
 import array as arr
 import sys
 
 dnsRoute = Blueprint('dnsRoute', __name__)
 
 peers = []
+scheduler = sched.scheduler(time.time(), time.sleep(TTL_TIME))
+
+
+# def ttl_remove_peer():
+#     scheduler.enter(TTL_TIME, 1, ttl(ip) )
+
+def ttl(ip):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(5)
+    if ip is not None:
+        try:
+            if (s.connect((ip, int(PEER_PORT)))) is True:
+                s.shutdown(socket.SHUT_RDWR)
+            else:
+                peers = removePeer_ip(ip)
+            # return jsonify({'ok': True, "message": 'CONNECTED'}), 200
+        except:
+            return jsonify({'ok': False, "message": 'ERROR'}), 500
+        finally:
+            s.close()
 
 
 def content_encrypt(data):
@@ -37,13 +57,11 @@ def content_encrypt(data):
     cipher_aes = base64.b64encode(cipher_aes.nonce)
     tag = base64.b64encode(tag)
     ciphertext = base64.b64encode(ciphertext)
-
     # Decode da chave para ir apenas o conteudo
     enc_session_key = enc_session_key.decode("utf-8")
     cipher_aes = cipher_aes.decode("utf-8")
     tag = tag.decode("utf-8")
     ciphertext = ciphertext.decode("utf-8")
-
     # String completa
     content = str(enc_session_key), str(cipher_aes), str(tag), str(ciphertext)
     s = ','
@@ -54,7 +72,6 @@ def content_encrypt(data):
 def content_decrypt(data):
     # importa a chave privada
     private_key = RSA.import_key(open("keys/private.pem").read())
-
     # Separação dos dados recebidos
     enc_session_key, nonce, tag, ciphertext = data.split(',')
     enc_session_key = base64.b64decode(enc_session_key.encode("utf-8"))
@@ -106,6 +123,13 @@ def removePeer(bit_address):
     peers = list(filter(lambda x: x['bitcoin_address'] != bit_address, peers))
     return peers
 
+#TODO: FILTRO MAL CONSTRUIDO? USAR POP / DEL
+
+def removePeer_ip(ip):
+    global peers
+    peers = list(filter(lambda x: x['ip'] != ip, peers))
+    return peers
+
 
 def generateKeys():
     # Define corretamente os caminhos onde as keys vão ser guardadas
@@ -132,11 +156,9 @@ def keysVerify():
     keysPath = os.path.join(app_root, 'keys')
     privateKeyPath = os.path.join(keysPath, 'private.pem')
     publicKeyPath = os.path.join(keysPath, 'receiver.pem')
-
     # verifica se a pasta keys existe, se não, então é criada
     if not path.exists(privateKeyPath):
         os.makedirs(keysPath)
-
     # verifica se as chaves existem
     if not path.exists(privateKeyPath) or not path.exists(publicKeyPath):
         generateKeys()
@@ -148,17 +170,14 @@ def hello():
     try:
         keysVerify()
         data = request.get_json()
-
         jsonModel = data.get('ip')
         jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
-
         # Adiciona o 1° argumento a data
         data = jsonFormat
         content = addressencrypt(data)
         data = str(data, 'utf-8')
         data = data.replace('"', "")
         now = str(datetime.now())
-
         if next(filter(lambda x: x['ip'] == data, peers), None):
             return jsonify({'ok': False, 'message': None}), 404
         elif next(filter(lambda x: x['bitcoin_address'] == content, peers), None):
@@ -166,7 +185,6 @@ def hello():
         else:
             pear = {'bitcoin_address': content, 'ip': data, 'timestamp': now}
             peers.append(pear)
-
         return jsonify({'ok': True, "message": format(content)}), 200
     except:
         return jsonify({'ok': False, 'message': 'Something Failed'}), 400
@@ -178,22 +196,6 @@ def peerCheck():
     bitAddress = data.get('bitAddress')
     peers = removePeer(bitAddress)
     return jsonify({'ok': True, "message": format(peers)}), 200
-
-
-@dnsRoute.route('/ttl/', methods=['GET'])
-def ttl():
-    data = request.get_json()
-    ip = PEER_HOST
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(5)
-    try:
-        s.connect((ip, int(PEER_PORT)))
-        s.shutdown(socket.SHUT_RDWR)
-        return jsonify({'ok': True, "message": 'CONNECTED'}), 200
-    except:
-        return jsonify({'ok': False, "message": 'ERROR'}), 500
-    finally:
-        s.close()
 
 
 @dnsRoute.route('/peers', methods=['GET'])
@@ -218,7 +220,6 @@ def translate_address(ip):
     if ip is not None:
         try:
             msg = ipToAddress(ip)
-            # bitcoin_address = addressencrypt(ip)
             return jsonify({'ok': True, "message": msg}), 200
         except:
             return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
@@ -271,5 +272,16 @@ def decrypt_text():
         data = data.get("content")
         msg = content_decrypt(data)
         return jsonify({'ok': True, "message": msg}), 200
+    except:
+        return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
+
+
+@dnsRoute.route('/testing', methods=['GET'])
+def ttl_testing():
+    try:
+        for element in peers:
+            ip = element['ip']
+            ttl(ip)
+        return jsonify({'ok': True, "message": peers}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404

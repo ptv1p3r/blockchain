@@ -3,7 +3,6 @@ from flask import Flask, request, render_template, redirect
 from node_server import *
 import time
 from utils import *
-from gevent.pywsgi import WSGIServer
 
 app = Flask(__name__)
 
@@ -271,7 +270,7 @@ def consensus():
 # anuncia os novos blocos na rede
 def announce_new_block(block):
     for _node in nodes_ledger[0]:
-        url = "{}:5000/block/add".format(_node['ip'])
+        url = "http://{}:5000/block/add".format(_node['ip'])
         headers = {'Content-Type': "application/json"}
         requests.post(url, data=json.dumps(block.__dict__, sort_keys=True), headers=headers)
 

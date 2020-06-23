@@ -63,6 +63,7 @@ def index():
         bitcoin_node_address = response
 
     # get node list from dns
+    nodes_ledger.clear()
     nodes_ledger.append(dns_nodes_get())
 
     # actualiza chain e peers

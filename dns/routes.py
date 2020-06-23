@@ -196,7 +196,7 @@ def hello():
 @dnsRoute.route('/removePeer', methods=['POST'])
 def peerCheck():
     data = request.get_json()
-    bitAddress = data.get('bitAddress')
+    bitAddress = data.get('Address')
     peers = removePeer(bitAddress)
     return jsonify({'ok': True, "message": format(peers)}), 200
 

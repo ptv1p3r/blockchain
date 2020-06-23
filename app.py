@@ -27,7 +27,7 @@ def index():
     response_hello = dns_hello()  # send hello to dns register and get bitcoin address
     bitcoin_node_address = response_hello['message']
 
-    if response_hello['ok'] == 'True':
+    if response_hello['ok']:
         nodes_ledger.append(dns_nodes_get())
         # actualiza chain e peers
         response = json.loads(get_chain())
@@ -113,7 +113,6 @@ def get_chain():
         chain_data.append(block.__dict__)
     return json.dumps({"length": len(chain_data),
                        "chain": chain_data,
-                       # "peers": list(peers),
                        "nodes": list(nodes)})
 
 

@@ -169,24 +169,28 @@ def hello():
     try:
         keysVerify()
         data = request.get_json()
-        jsonModel = data.get('ip')
-        jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
-        # Adiciona o 1° argumento a data
-        data = jsonFormat
-        content = addressencrypt(data)
-        data = str(data, 'utf-8')
-        data = data.replace('"', "")
-        now = str(datetime.now())
-        if next(filter(lambda x: x['ip'] == data, peers), None):
-            return jsonify({'ok': False, 'message': None}), 404
-        elif next(filter(lambda x: x['bitcoin_address'] == content, peers), None):
-            return jsonify({'ok': False, 'message': None}), 404
+        if data is not None:
+            jsonModel = data.get('ip')
+            jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
+            # Adiciona o 1° argumento a data
+            data = jsonFormat
+            content = addressencrypt(data)
+            data = str(data, 'utf-8')
+            data = data.replace('"', "")
+            now = str(datetime.now())
+            if next(filter(lambda x: x['ip'] == data, peers), None):
+                return jsonify({'ok': False, 'message': format(content)}), 200
+            elif next(filter(lambda x: x['bitcoin_address'] == content, peers), None):
+                return jsonify({'ok': False, 'message': format(content)}), 200
+            else:
+                pear = {'bitcoin_address': content, 'ip': data, 'timestamp': now}
+                peers.append(pear)
+                return jsonify({'ok': True, "message": format(content)}), 200
+            # return jsonify({'ok': True, "message": format(content)}), 200
         else:
-            pear = {'bitcoin_address': content, 'ip': data, 'timestamp': now}
-            peers.append(pear)
-        return jsonify({'ok': True, "message": format(content)}), 200
+            return jsonify({'ok': False, 'message': 'Value is Empty'}), 400
     except:
-        return jsonify({'ok': False, 'message': 'Something Failed'}), 400
+        return jsonify({'ok': False, 'message': 'NOT FOUND'}), 404
 
 
 @dnsRoute.route('/removePeer', methods=['POST'])

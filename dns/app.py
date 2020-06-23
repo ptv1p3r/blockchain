@@ -16,7 +16,7 @@ app = Flask(__name__)
 app.register_blueprint(dnsRoute)
 
 
-ttl_teste()
+ttl()
 
 
 @app.route("/")

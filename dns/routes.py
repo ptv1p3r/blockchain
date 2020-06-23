@@ -1,8 +1,7 @@
-from Crypto.PublicKey import RSA
 from flask import Blueprint, jsonify
 from os import path
 from bitcoinutils.setup import setup
-from bitcoinutils.keys import P2pkhAddress, PrivateKey, PublicKey
+from bitcoinutils.keys import PrivateKey
 from dns.config import *
 from flask import request
 from Crypto.PublicKey import RSA
@@ -14,32 +13,26 @@ import json
 import base64
 import socket
 import os.path
-import sched, time
-import array as arr
-import sys
 from threading import Timer
-
 
 dnsRoute = Blueprint('dnsRoute', __name__)
 
-peers = []
+PEERS = []
 
 
-def ttl_teste():
-    global peers
-    for element in peers:
+def ttl():
+    global PEERS
+    for element in PEERS:
         ip = element['ip']
-        ttl(ip)
+        ping_ip(ip)
 
-    Timer(10, ttl_teste).start()
-
-
+    Timer(TTL_TIME, ttl).start()
 
 
-
-def ttl(ip):
+def ping_ip(ip):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(5)
+
     if ip is not None:
         try:
             if s.connect((ip, int(PEER_PORT))):
@@ -54,12 +47,9 @@ def ttl(ip):
             if response.status_code != 201:
                 removePeer_ip(ip)
 
-                # s.shutdown(socket.SHUT_RDWR)
-
-            # return jsonify({'ok': True, "message": 'CONNECTED'}), 200
         except:
             removePeer_ip(ip)
-            # return jsonify({'ok': False, "message": 'ERROR'}), 500
+
         finally:
             s.close()
 
@@ -112,45 +102,39 @@ def content_decrypt(data):
     return data
 
 
-def addressencrypt(ip):
-    # always remember to setup the network
+def address_encrypt(ip):
     setup('mainnet')
-    # create a private key (deterministically)
     priv = PrivateKey(secret_exponent=1)
-    # get the public key
-    pub = priv.get_public_key()
     message = str(ip)
     signature = priv.sign_message(message)
     return signature
 
 
-def ipToAddress(ip):
+def ip_to_address(ip):
     try:
-        pear = next(filter(lambda x: x['ip'] == ip, peers), None)
+        pear = next(filter(lambda x: x['ip'] == ip, PEERS), None)
         return {'bitcoin_address': pear['bitcoin_address']}
     except:
         return {'message': 'Ip não corresponde a nenhum endereço'}
 
 
-def addressToIp(address):
+def address_to_ip(address):
     try:
-        pear = next(filter(lambda x: x['bitcoin_address'] == address, peers), None)
+        pear = next(filter(lambda x: x['bitcoin_address'] == address, PEERS), None)
         return {'ip': pear['ip']}
     except:
         return {'message': 'Endereço não corresponde a nenhum ip'}
 
 
-def removePeer(bit_address):
-    global peers
-    peers = list(filter(lambda x: x['bitcoin_address'] != bit_address, peers))
-    return peers
+def remove_peer(bit_address):
+    global PEERS
+    PEERS = list(filter(lambda x: x['bitcoin_address'] != bit_address, PEERS))
+    return PEERS
 
-
-# TODO: FILTRO MAL CONSTRUIDO? USAR POP / DEL
 
 def removePeer_ip(ip):
-    global peers
-    peers = list(filter(lambda x: x['ip'] != ip, peers))
+    global PEERS
+    PEERS = list(filter(lambda x: x['ip'] != ip, PEERS))
 
 
 def generateKeys():
@@ -187,7 +171,6 @@ def keysVerify():
 
 
 @dnsRoute.route('/hello', methods=['POST'])
-# TODO : array em que cada hello 200 que devolva o IP, colocar IP, Endereço e TimeStamp dentro do array. mas temos que verificar se já existe.
 def hello():
     try:
         keysVerify()
@@ -197,19 +180,18 @@ def hello():
             jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
             # Adiciona o 1° argumento a data
             data = jsonFormat
-            content = addressencrypt(data)
+            content = address_encrypt(data)
             data = str(data, 'utf-8')
             data = data.replace('"', "")
             now = str(datetime.now())
-            if next(filter(lambda x: x['ip'] == data, peers), None):
+            if next(filter(lambda x: x['ip'] == data, PEERS), None):
                 return jsonify({'ok': False, 'message': format(content)}), 200
-            elif next(filter(lambda x: x['bitcoin_address'] == content, peers), None):
+            elif next(filter(lambda x: x['bitcoin_address'] == content, PEERS), None):
                 return jsonify({'ok': False, 'message': format(content)}), 200
             else:
                 pear = {'bitcoin_address': content, 'ip': data, 'timestamp': now}
-                peers.append(pear)
+                PEERS.append(pear)
                 return jsonify({'ok': True, "message": format(content)}), 200
-            # return jsonify({'ok': True, "message": format(content)}), 200
         else:
             return jsonify({'ok': False, 'message': 'Value is Empty'}), 400
     except:
@@ -220,15 +202,15 @@ def hello():
 def peerCheck():
     data = request.get_json()
     bitAddress = data.get('Address')
-    peers = removePeer(bitAddress)
+    peers = remove_peer(bitAddress)
     return jsonify({'ok': True, "message": format(peers)}), 200
 
 
-@dnsRoute.route('/peers', methods=['GET'])
+@dnsRoute.route('/PEERS', methods=['GET'])
 def peersList():
-    if peers is not None:
+    if PEERS is not None:
         try:
-            return jsonify({'ok': True, "message": peers}), 200
+            return jsonify({'ok': True, "message": PEERS}), 200
         except TypeError:
             return jsonify({'ok': False, "message": 'List Not Found'}), 400
 
@@ -245,7 +227,7 @@ def dnsResolution(address):
 def translate_address(ip):
     if ip is not None:
         try:
-            msg = ipToAddress(ip)
+            msg = ip_to_address(ip)
             return jsonify({'ok': True, "message": msg}), 200
         except:
             return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
@@ -255,13 +237,12 @@ def translate_address(ip):
 def translate_ip(address):
     if address is not None:
         try:
-            msg = addressToIp(address)
+            msg = address_to_ip(address)
             return jsonify({'ok': True, "message": msg}), 200
         except:
             return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
 
 
-# TODO: mais de 10 linhas é função
 @dnsRoute.route('/data/encrypt', methods=['GET'])
 def encrypt_text():
     try:
@@ -271,13 +252,9 @@ def encrypt_text():
         for field in required_fields:
             if not data.get(field):
                 return "Invalid transaction data", 404
-
         data = data.get("content")
-        # Adiciona o 1° argumento ao conteudo do content do jsonModel
         jsonModel = data
-        # Transforma o jsonModel em json e normaliza o texto para utf8
         jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
-        # Adiciona o 1° argumento a data
         data = jsonFormat
         msg = content_encrypt(data)
         return jsonify({'ok': True, "message": msg}), 200
@@ -301,18 +278,3 @@ def decrypt_text():
         return jsonify({'ok': True, "message": msg}), 200
     except:
         return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
-
-
-@dnsRoute.route('/testing', methods=['GET'])
-def ttl_testing():
-    try:
-        for element in peers:
-            ip = element['ip']
-            ttl(ip)
-
-        return jsonify({'ok': True, "message": 'ok'}), 200
-    except:
-        return jsonify({'ok': False, "message": 'NOT FOUND'}), 404
-
-
-

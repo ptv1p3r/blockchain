@@ -137,7 +137,7 @@ def removePeer_ip(ip):
     PEERS = list(filter(lambda x: x['ip'] != ip, PEERS))
 
 
-def generateKeys():
+def generate_keys():
     # Define corretamente os caminhos onde as keys vão ser guardadas
     app_root = os.path.dirname(os.path.abspath(__file__))
     keysPath = os.path.join(app_root, 'keys')
@@ -156,7 +156,7 @@ def generateKeys():
     file_out.close()
 
 
-def keysVerify():
+def keys_verify():
     # Define corretamente os caminhos onde as keys vão ser guardadas
     app_root = os.path.dirname(os.path.abspath(__file__))
     keysPath = os.path.join(app_root, 'keys')
@@ -167,18 +167,17 @@ def keysVerify():
         os.makedirs(keysPath)
     # verifica se as chaves existem
     if not path.exists(privateKeyPath) or not path.exists(publicKeyPath):
-        generateKeys()
+        generate_keys()
 
 
 @dnsRoute.route('/hello', methods=['POST'])
 def hello():
     try:
-        keysVerify()
+        keys_verify()
         data = request.get_json()
         if data is not None:
             jsonModel = data.get('ip')
             jsonFormat = json.dumps(jsonModel, ensure_ascii=False).encode('utf8')
-            # Adiciona o 1° argumento a data
             data = jsonFormat
             content = address_encrypt(data)
             data = str(data, 'utf-8')
@@ -199,15 +198,15 @@ def hello():
 
 
 @dnsRoute.route('/removePeer', methods=['POST'])
-def peerCheck():
+def peer_check():
     data = request.get_json()
     bitAddress = data.get('Address')
     peers = remove_peer(bitAddress)
     return jsonify({'ok': True, "message": format(peers)}), 200
 
 
-@dnsRoute.route('/PEERS', methods=['GET'])
-def peersList():
+@dnsRoute.route('/peers', methods=['GET'])
+def peers_list():
     if PEERS is not None:
         try:
             return jsonify({'ok': True, "message": PEERS}), 200
@@ -216,7 +215,7 @@ def peersList():
 
 
 @dnsRoute.route('/dnsresolution/<address>', methods=['GET'])
-def dnsResolution(address):
+def dns_resolution(address):
     try:
         return jsonify({'ok': True, "message": format(address)}), 200
     except:
@@ -246,7 +245,7 @@ def translate_ip(address):
 @dnsRoute.route('/data/encrypt', methods=['GET'])
 def encrypt_text():
     try:
-        keysVerify()
+        keys_verify()
         data = request.get_json()
         required_fields = ["content"]
         for field in required_fields:

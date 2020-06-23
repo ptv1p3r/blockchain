@@ -55,6 +55,7 @@ def fetch_posts():
 def index():
     # contact dns for bitcoin address
     global bitcoin_node_address
+    global blockchain
 
     response = dns_hello()
 
@@ -63,7 +64,11 @@ def index():
 
     # get node list from dns
     nodes_ledger.append(dns_nodes_get())
-    # tt = get_chain()
+
+    # actualiza chain e peers
+    response = json.loads(get_chain())
+    chain_dump = response['chain']
+    blockchain = create_chain_from_dump(chain_dump)
 
     fetch_posts()
     return render_template('index.html',
@@ -264,6 +269,9 @@ def consensus():
 
 # anuncia os novos blocos na rede
 def announce_new_block(block):
+    # get node list from dns
+    nodes_ledger.append(dns_nodes_get())
+
     for peer in peers:
         url = "{}block/add".format(peer)
         headers = {'Content-Type': "application/json"}

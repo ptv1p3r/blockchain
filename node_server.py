@@ -1,4 +1,5 @@
 from hashlib import sha256
+from config import *
 import json
 import time
 
@@ -19,7 +20,7 @@ class Block:
 
 
 class Blockchain:
-    difficulty = 2  # dificuldade PoW
+    difficulty = POW_DIFFICULTY  # dificuldade PoW
 
     def __init__(self):
         self.unconfirmed_transactions = []  # dados nao confirmados
